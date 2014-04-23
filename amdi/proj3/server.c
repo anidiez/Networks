@@ -20,6 +20,8 @@
 #include<sys/stat.h>
 #include<sys/types.h>
 #include<sys/wait.h>
+#include<time.h>
+
 //might not need this
 #define MAXCONNECTIONS 1000
 //#define BYTES 1024
@@ -37,6 +39,7 @@ int clients[MAXCONNECTIONS];
 void setupServer(char* );
 //handleRequests with int for multiple clients
 void handleRequests(int clientNo);
+void playGame(int player1, int player2);
 int get(char*, int);
 int post(char*, int);
 void queryRun(int,char*,char*);
@@ -50,6 +53,8 @@ int main(int argc, char* argv[]){
     char port[6];
 
     int clientNo;
+    
+    time_t timer,currtimer;
 
     if(signal(SIGINT,interrupt) == SIG_ERR){
         perror("could not set signal handler");
@@ -82,16 +87,30 @@ int main(int argc, char* argv[]){
 
     //accept connection (for multiple connections fork) 
     while(1){
+        int player1, player2;
+
         addr_len = sizeof(client);
         clients[clientNo] = accept(sockfd, (struct sockaddr*) &client, &addr_len);
-        if(clients[clientNo] < 0 ){
+        
+        if(clients[clientNo] != -1) {        
+          if(player1 < 0 && player2 < 0) {
+            time(&timer);
+            player1 = clients[clientNo];
+          } else {
+            player2 = clients[clientNo];
+          }
+        }
+        if(clients[clientNo] < 0) {
             perror("error accepting client");
         }else{
             //if we're in the child process
-            if(fork() == 0){
-                handleRequests(clientNo);
-                exit(EXIT_SUCCESS);
-            }
+            //if(fork() == 0){
+                if (player1 > 0 && player2 > 0) {
+                  playGame(player1,player2);
+                  //handleRequests(clientNo);
+                  exit(EXIT_SUCCESS);
+                }
+            //}
         }
         while(clients[clientNo] !=-1){
             clientNo = (clientNo+1)%MAXCONNECTIONS;
@@ -140,6 +159,12 @@ void setupServer(char* port){
         exit(EXIT_FAILURE);
     }
 
+}
+
+void playGame(int player1, int player2) {
+  int currClient = 0;
+
+  
 }
 
 void handleRequests(int clientNo){

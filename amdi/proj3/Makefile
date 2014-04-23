@@ -1,4 +1,4 @@
-#made by Ana Diez for the http server project
+#made by Ana Diez/Steven Basart for BattleShip
 #last edited 4/18/14 @12:55
 
 CC = gcc
@@ -7,7 +7,7 @@ REMOTEHOST = ec2-50-19-234-239.compute-1.amazonaws.com
 PORT = 3335
 
 all:
-	${CC} -o http http-server.c ${LIBS}
+	${CC} -o battleship server.c ${LIBS}
 
 help:
 	@echo To run with the default port (3333) run default-http. 
@@ -21,5 +21,5 @@ port-http:
 	./http -p ${PORT}
 
 clean:
-	-rm http
+	-rm battleship
 	-rm temp*
