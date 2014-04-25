@@ -8,7 +8,7 @@ PORT = 3335
 
 all:
 	$(CC) -o server battleship-server.c
-	${CC} -o client battleship-client.c
+	${CC} -o client battleship-client.c -lm
 
 help:
 	@echo write help here. 

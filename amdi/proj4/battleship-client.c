@@ -2,20 +2,30 @@
 
 //Libraries to include
 #include "battleship.h"
-
 //--Predefined
 
 //Declare the functions
 //void
 
+int powerN(int powNumber, int number,int times){
+  if (times == 0){
+    return 1;
+  } else if ( times == 1) {
+    return powNumber;
+  } else {
+    return (powerN(powNumber*number,number,times-1));
+  }
+}
+
 int convertPortToInt(int port) {
   char c;
   int index, size = strlen(DEF_PORT);
 
+  size = size -1;
   index = 0;
-  while (size > 0) {
+  while (size >= 0) {
     c = DEF_PORT[size];
-    port = (c - '0')*(index *10);
+    port += (c - '0')*(powerN(10,10,index));
     index++;
     size--;
   }
