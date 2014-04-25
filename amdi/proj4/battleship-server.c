@@ -51,6 +51,7 @@ int main(int argc, char* argv[]){
     players[index] = -1;
   }
 
+  //Just so I can see what's happening.
 
   while(1) {
     players[playerNum] = accept(sockfd, (struct sockaddr*) &client_addr, &addr_len);
@@ -61,30 +62,30 @@ int main(int argc, char* argv[]){
       {
         time(&timer1);
         player1 = players[playerNum];
+        printf("player1 is not zero\n");
       } 
       else 
       {
         time(&timer2);
         player2 = players[playerNum];
+        printf("player2 is not zero\n");
       }
     }
-    if(players[playerNum] < 0) 
+
+    //Just wait a second
+    sleep(1);
+
+    if (player1 > 0 && player2 > 0) 
     {
-      perror("error accepting client");
-    } 
-    else
-    {
-      if (player1 > 0 && player2 > 0) 
+      if(fork() == 0) 
       {
-        if(fork() == 0) 
-        {
-          setupGame(player1, player2);
-          exit(EXIT_SUCCESS);
-        } else {
-          player1 = -1;
-          player2 = -1;
-          //Also reset players array players[] to -1;
-        }
+        printf("Setting up the game\n");
+        setupGame(player1, player2);
+        exit(EXIT_SUCCESS);
+      } else {
+        player1 = -1;
+        player2 = -1;
+        //Also reset players array players[] to -1;
       }
     }
     while(players[playerNum] !=-1)
