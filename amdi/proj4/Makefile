@@ -7,9 +7,8 @@ REMOTEHOST = ec2-50-19-234-239.compute-1.amazonaws.com
 PORT = 3335
 
 all:
-	$(CC) -o server battleship-server.c #${LIBS}
-#client not done yet
-#	${CC} -o client battleship-client.c ${LIBS}
+	$(CC) -o server battleship-server.c
+	${CC} -o client battleship-client.c
 
 help:
 	@echo write help here. 
