@@ -4,22 +4,13 @@
 ** Written by Ana Diez and Steven Basart
 */
 
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
-//May not need all of these includes
-#include<unistd.h>
-#include<fcntl.h>
-#include<arpa/inet.h>
-#include<netdb.h>
-#include<signal.h>
-#include<sys/socket.h>
+//Searches current directory for battleship
+#include "battleship.h"
+//May not need to include
 #include<sys/stat.h>
-#include<sys/types.h>
-#include<sys/wait.h>
+//This one for timer
 #include<time.h>
 
-#define DEF_PORT "3333"
 #define MAX_PLAYERS 100
 
 int setupServer(int , char* );
