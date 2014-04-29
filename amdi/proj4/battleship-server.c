@@ -8,10 +8,9 @@
 #include "battleship.h"
 //May not need to include
 #include<sys/stat.h>
-//This one for timer
-#include<time.h>
 
-#define MAX_PLAYERS 100
+//global variables aren't the best idea but since we only use one socket...
+int sockfd;
 
 int setupServer(int , char* );
 void setupGame(int player1, int player2);
@@ -22,7 +21,8 @@ int main(int argc, char* argv[]){
   socklen_t addr_len;
   addr_len = sizeof(client_addr);
  
-  int sockfd, index, playerNum;
+//  int sockfd;
+    int index, playerNum;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
