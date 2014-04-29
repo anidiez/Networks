@@ -17,7 +17,7 @@
 #include<netdb.h>
 #include<fcntl.h>
 
-#define DEF_PORT 3333
+#define DEF_PORT "3333"
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
 #define MAXBUFLEN 517
 

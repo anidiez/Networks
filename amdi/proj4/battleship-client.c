@@ -7,13 +7,13 @@
 //Declare the functions
 //void
 
-int powerN(int powNumber, int number,int times){
+int powerN(int number, int base,int exponent){
   if (times == 0){
     return 1;
   } else if ( times == 1) {
-    return powNumber;
+    return number;
   } else {
-    return (powerN(powNumber*number,number,times-1));
+    return (powerN(base*number,number,times-1));
   }
 }
 
