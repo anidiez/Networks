@@ -8,28 +8,25 @@
 //Searches current directory for battleship
 #include "battleship.h"
 
-//May not need to include
-#include<sys/stat.h>
-
 
 //Definitions
 #define MAX_PLAYERS 100
 //global variables aren't the best idea but since we only use one socket...
-int sockfd;
+//but Sutcliffe = my hero :/
+//int sockfd;
 
 
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 //void play();
 
-int main() {
+int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
   socklen_t addr_len;
   addr_len = sizeof(client_addr);
  
   int sockfd = -1, index, playerNum;
 //  int sockfd;
-    int index, playerNum;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
@@ -155,7 +152,7 @@ void setupGame(int player1, int player2) {
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
 
-  write(player1, "hello again", 12);
+  //write(player1, "hello again", 12);
   //write(player2, "herro again", 12);
 
   //while (TRUE) {

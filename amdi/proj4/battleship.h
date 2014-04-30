@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
+#include<stdbool.h>
 #include<signal.h>
 #include<time.h>
 #include<unistd.h>
@@ -16,7 +16,7 @@
 
 #define DEF_PORT "3380"
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
-#define MAXBUFLEN 517
+#define MAX_BUFF_LEN 517
 
 #define MAX_PLAYERS 100
 
@@ -32,7 +32,6 @@ AIRCARRIER,
 BATTLESHIP,
 SUBMARINE,
 DESTROYER,
-PATROL
-}
+PATROL,
+} boats;
 
-#endif
