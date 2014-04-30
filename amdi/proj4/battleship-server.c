@@ -18,6 +18,7 @@
 
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
+int getOpcode(char* packet);
 //void play();
 
 int main(int argc, char *argv[]) {
@@ -25,7 +26,8 @@ int main(int argc, char *argv[]) {
   socklen_t addr_len;
   addr_len = sizeof(client_addr);
  
-  int sockfd = -1, index, playerNum;
+  int sockfd = -1, index;
+  int playerNum = 0;
 //  int sockfd;
   int player1 = -1, player2 = -1;
   char port[6];
@@ -84,7 +86,8 @@ int main(int argc, char *argv[]) {
       } else {
         player1 = -1;
         player2 = -1;
-        //Also reset players array players[] to -1;
+        players[playerNum] = -1;
+        players[playerNum-1] = -1;
       }
     }
     while(players[playerNum] !=-1)
@@ -143,11 +146,13 @@ int setupServer(int sockfd, char* port) {
    
   //We probably need to return sockfd since it isn't global
   return (sockfd);
-  //Not sure if we need to return sockfd since it isn't global
-  //return (sockfd);
 }
 
 void setupGame(int player1, int player2) {
+  char p1buf[MAX_BUFF_LEN];
+  char p2buf[MAX_BUFF_LEN];
+  int numRead = -1;
+
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
@@ -155,13 +160,34 @@ void setupGame(int player1, int player2) {
   //write(player1, "hello again", 12);
   //write(player2, "herro again", 12);
 
-  //while (TRUE) {
-    
-  //}   
+///*
+  while (true) {
+   // numRead = -1;
+    numRead = read(player1, p1buf, MAX_BUFF_LEN);
+    if(numRead > 0){
+      printf("%s\n",p1buf);
+      numRead = -1;
+    }
+    numRead = read(player2, p2buf, MAX_BUFF_LEN);
+    if(numRead > 0){
+      printf("%s\n",p2buf);
+      numRead = -1;
+    } 
+  }//*/   
 
   shutdown (player1, SHUT_RDWR);
   shutdown (player2, SHUT_RDWR);
   close(player1);
   close(player2);
 
+}
+
+int getOpcode(char* packet){
+  int opCode;
+  char num[2];
+
+  memset(num,0,3);
+  strncpy(num,packet,1);
+  opCode = atoi(num);
+  return opCode;
 }

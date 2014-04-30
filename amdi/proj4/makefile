@@ -8,7 +8,7 @@ PORT = 3335
 
 #made "debug" a macro add -Ddebug on client to see lots of comments
 all:
-	$(CC) -o server battleship-server.c
+	$(CC) -o server battleship-server.c -g
 	$(CC) -o client battleship-client.c -g
 
 help:
