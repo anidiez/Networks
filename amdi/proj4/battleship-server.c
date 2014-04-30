@@ -46,7 +46,11 @@ int main(int argc, char* argv[]){
 
   while(1) {
     players[playerNum] = accept(sockfd, (struct sockaddr*) &client_addr, &addr_len);
-
+//why do we have a player1 and player2 if we also have an array of players?
+//if we're doing what i think we're doing we have to reset p1 and p2 to -1 
+//at some point - what we have right now will crash after the first 2 players
+//also the ifs might not always work...because if both p1 and p2 are >0 we still
+//get a p2... we only want to get a p2 if p1>0 and p2<0
     if(players[playerNum] != -1) 
     {
       if(player1 < 0 && player2 < 0) 
@@ -132,7 +136,8 @@ int setupServer(int sockfd, char* port) {
   }
    
   //Not sure if we need to return sockfd since it isn't global
-  return (sockfd);
+  //i made it global... it just makes sense since we're always using the same socket
+  //return (sockfd);
 }
 
 void setupGame(int player1, int player2) {

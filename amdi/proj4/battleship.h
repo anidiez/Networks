@@ -17,7 +17,7 @@
 #include<netdb.h>
 #include<fcntl.h>
 
-#define DEF_PORT "3333"
+#define DEF_PORT 3333
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
 //probably will need to change this
 #define MAXBUFLEN 517
@@ -30,5 +30,13 @@ SHIP = 2,
 GAME_DATA = 3,
 ERROR = 4,
 } packet_type;
+
+typedef enum {
+AIRCARRIER,
+BATTLESHIP,
+SUBMARINE,
+DESTROYER,
+PATROL
+}
 
 #endif
