@@ -257,7 +257,7 @@ int CheckAlreadyUsed(int shippie)
     return(1);
   } else {
     //Add a switch statement to print out which boat was already placed ******
-    printf("Sorry ship already used");
+    printf("Sorry ship already used\n");
     return(-1);
   }
 } 
@@ -434,6 +434,7 @@ int ParseInput(int sockfd, char* input)
   switch (ship) 
   {
     case 'A':
+    case 'a':
       if(CheckAlreadyUsed(A) < 0)
       {return (-1);}
       if(CheckBounds(location, 5, oriented) < 0)
@@ -446,51 +447,63 @@ int ParseInput(int sockfd, char* input)
       write(sockfd,string,10);
       break;
     case 'B':
+    case 'b':
       if(CheckAlreadyUsed(B) < 0)
       {return (-1);}
       if(CheckBounds(location, 4, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 4, oriented) < 0)
       {return(-1);}
-      PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8
+      PlaceShip(ship, location, 4, oriented);
+      //write it back to server
+      sprintf(string,"24%d;%d",location,oriented);
+      write(sockfd,string,10);
    
       break;
     case 'C':
+    case 'c':
       if(CheckAlreadyUsed(C) < 0)
       {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
-      PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8
+      PlaceShip(ship, location, 3, oriented);
+      //write it back to server
+      sprintf(string,"23%d;%d",location,oriented);
+      write(sockfd,string,10);
  
       break;
     case 'S':
+    case 's':
       if(CheckAlreadyUsed(S) < 0)
       {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
-      PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8
+      PlaceShip(ship, location, 3, oriented);
+      //write it back to server
+      sprintf(string,"23%d;%d",location,oriented);
+      write(sockfd,string,10);
  
       break;
     case 'P':
+    case 'p':
       if(CheckAlreadyUsed(P) < 0)
       {return (-1);}
       if(CheckBounds(location, 2, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 2, oriented) < 0)
       {return(-1);}
-      PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8
+      PlaceShip(ship, location, 2, oriented);
+      //write it back to server
+      sprintf(string,"22%d;%d",location,oriented);
+      write(sockfd,string,10);
  
       break;
     default:
-    printf("Sorry invalid ship try again\n");
+      printf("Sorry invalid ship try again\n");
   }
 
   #ifdef debug
@@ -562,6 +575,8 @@ int setupGame(int sockfd)
     printf("Did I parse?\n");
     fflush(stdout);
     #endif
+
+    //For now since
 
     if(index > 0) 
     {
