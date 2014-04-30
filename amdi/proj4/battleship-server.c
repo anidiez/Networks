@@ -19,6 +19,7 @@
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
+void makePacket(char* buf, int opcode, char* data1, char* data2);
 //void play();
 
 int main(int argc, char *argv[]) {
@@ -165,11 +166,13 @@ void setupGame(int player1, int player2) {
     numRead = read(player1, p1buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p1buf);
+      fflush(stdout);
       numRead = -1;
     }
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p2buf);
+      fflush(stdout);
       numRead = -1;
     } 
   }//*/   
@@ -189,4 +192,8 @@ int getOpcode(char* packet){
   strncpy(num,packet,1);
   opCode = atoi(num);
   return opCode;
+}
+
+void makePacket(char* buf, int opCode, char* data1, char* data2){
+
 }

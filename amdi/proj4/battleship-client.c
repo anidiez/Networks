@@ -562,6 +562,7 @@ int setupGame(int sockfd)
     printf("Did I parse?\n");
     fflush(stdout);
     #endif
+//for right now...
 
     if(index > 0) 
     {
