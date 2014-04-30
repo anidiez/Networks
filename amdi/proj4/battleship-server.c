@@ -63,12 +63,22 @@ int main(int argc, char *argv[]) {
       {
         time(&timer1);
         player1 = players[playerNum];
+
+        if (fcntl(player1, F_SETFL, O_NONBLOCK) < 0) {
+          printf("Error setting nonblocking");
+          exit(EXIT_FAILURE);
+        }
+
         printf("player1 is not zero\n");
       } 
       else 
       {
         time(&timer2);
         player2 = players[playerNum];
+        if (fcntl(player2, F_SETFL, O_NONBLOCK) < 0) {
+          printf("Error setting nonblocking");
+          exit(EXIT_FAILURE);
+        }
         printf("player2 is not zero\n");
       }
     }
@@ -163,18 +173,27 @@ void setupGame(int player1, int player2) {
 ///*
   while (true) {
    // numRead = -1;
+    #ifdef debug
+    printf("loop time getting boats");
+    fflush(stdout);
+    #endif
+
     numRead = read(player1, p1buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p1buf);
       fflush(stdout);
+      write(player1,"we got your boat",17);
       numRead = -1;
     }
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p2buf);
       fflush(stdout);
+      write(player2,"we got your boat",17);
       numRead = -1;
     } 
+    //small pause
+    sleep(1);
   }//*/   
 
   shutdown (player1, SHUT_RDWR);

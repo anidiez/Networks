@@ -12,7 +12,7 @@ all:
 	$(CC) -o client battleship-client.c -g
 
 debug:
-	$(CC) -o server battleship-server.c -g 
+	$(CC) -o server battleship-server.c -g -Ddebug 
 	$(CC) -o client battleship-client.c -g -Ddebug 
 
 help:
