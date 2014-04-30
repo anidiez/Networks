@@ -62,13 +62,28 @@ int main(int argc, char *argv[]) {
       {
         time(&timer1);
         player1 = players[playerNum];
+       //set player1 socket fd to nonblocking
+       if (fcntl(player1, F_SETFL, O_NONBLOCK) < 0) 
+       {
+         printf("Error setting nonblocking");
+         exit(EXIT_FAILURE);
+       }
+
+
         printf("player1 is not zero\n");
       } 
       else 
       {
         time(&timer2);
         player2 = players[playerNum];
-        printf("player2 is not zero\n");
+        //set player2 socket fd to nonblocking
+        if (fcntl(player2, F_SETFL, O_NONBLOCK) < 0) 
+        {
+          printf("Error setting nonblocking");
+          exit(EXIT_FAILURE);
+        }
+
+       printf("player2 is not zero\n");
       }
     }
 
