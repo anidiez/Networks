@@ -30,8 +30,15 @@ ERROR = 4,
 typedef enum {
 AIRCARRIER,
 BATTLESHIP,
+CRUISER,
 SUBMARINE,
-DESTROYER,
 PATROL,
 } boats;
 
+typedef enum {
+A = 0,
+B = 1,
+C = 2,
+S = 3,
+P = 4,
+} shipps;

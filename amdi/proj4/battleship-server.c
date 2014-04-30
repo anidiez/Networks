@@ -28,7 +28,6 @@ int main(int argc, char *argv[]) {
  
   int sockfd = -1, index;
   int playerNum = 0;
-//  int sockfd;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];

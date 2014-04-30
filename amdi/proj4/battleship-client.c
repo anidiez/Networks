@@ -22,6 +22,7 @@ int CheckCollision(int location, int length, int oriented);
 
 //Globals
 char shipArray[GAMEBOARD];
+int ships[5];
 
 
 int powerN(int number, int base,int exponent){
@@ -247,8 +248,22 @@ void PlaceShip(char shippie, int location, int size, int oriented)
 
 }
 
+int CheckAlreadyUsed(int shippie) 
+{
+  int index;
+  if (ships[shippie] == 0)
+  {
+    ships[shippie] = 1;
+    return(1);
+  } else {
+    //Add a switch statement to print out which boat was already placed ******
+    printf("Sorry ship already used");
+    return(-1);
+  }
+} 
+
 //Note to self pass in sockfd to write to server in case of good input*******
-int ParseInput(char* input)
+int ParseInput(int sockfd, char* input)
 {
   int i = 0, c, index = 0, location, oriented, returnValue = -1;
   char ship, orientation, check;
@@ -418,43 +433,58 @@ int ParseInput(char* input)
   switch (ship) 
   {
     case 'A':
+      if(CheckAlreadyUsed(A) < 0)
+      {return (-1);}
       if(CheckBounds(location, 5, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 5, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
-      //write it back to server
+      //write it back to server***********************************8
+      write(sockfd,"2A%d;%d",location,oriented,10);
       break;
     case 'B':
+      if(CheckAlreadyUsed(B) < 0)
+      {return (-1);}
       if(CheckBounds(location, 4, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 4, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
+      //write it back to server***********************************8
    
       break;
     case 'C':
+      if(CheckAlreadyUsed(C) < 0)
+      {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
+      //write it back to server***********************************8
  
       break;
     case 'S':
+      if(CheckAlreadyUsed(S) < 0)
+      {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
+      //write it back to server***********************************8
  
       break;
     case 'P':
+      if(CheckAlreadyUsed(P) < 0)
+      {return (-1);}
       if(CheckBounds(location, 2, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 2, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
+      //write it back to server***********************************8
  
       break;
     default:
@@ -478,10 +508,18 @@ int setupGame(int sockfd)
   int index = 0, readStatus = 0, placed = 0;
   char *input;
 
+  //Initialize the game board
   for(index = 0; index < GAMEBOARD; index++) 
   {
     shipArray[index] = '0';
   }
+  //Initialize the ships in Use
+  for(index = 0; index < 5; index++) 
+  {
+    ships[index] = 0;
+  }
+
+
   index = 0; 
 
   printf("Waiting for other player\n");
@@ -516,9 +554,13 @@ int setupGame(int sockfd)
     #endif
 
     //Parses the input to see if valid and avoid collisions
-    index = ParseInput(input);
+    index = ParseInput(sockfd, input);
+
+    #ifdef debug
     printf("Did I parse?\n");
     fflush(stdout);
+    #endif
+
     if(index > 0) 
     {
       //reset index
