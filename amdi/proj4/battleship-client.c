@@ -13,7 +13,7 @@
 int powerN(int, int, int);
 int convertPortToInt(int);
 int setupGame(int);
-int ParseInput(char* input);
+int ParseInput(int,char* input);
 char* getUserInput();
 void displayBoard();
 int CheckBounds(int location, int length, int oriented);
@@ -267,6 +267,7 @@ int ParseInput(int sockfd, char* input)
 {
   int i = 0, c, index = 0, location, oriented, returnValue = -1;
   char ship, orientation, check;
+  char string[MAX_BUFF_LEN];
 
   #ifdef debug  
   printf("Look at me parse\n");
@@ -440,8 +441,9 @@ int ParseInput(int sockfd, char* input)
       if(CheckCollision(location, 5, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8
-      write(sockfd,"2A%d;%d",location,oriented,10);
+      //write it back to server***********************************8i
+      sprintf(string,"25%d;%d",location,oriented);
+      write(sockfd,string,10);
       break;
     case 'B':
       if(CheckAlreadyUsed(B) < 0)
