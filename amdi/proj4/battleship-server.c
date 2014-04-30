@@ -10,12 +10,12 @@
 
 //May not need to include
 #include<sys/stat.h>
-//This one for timer
-#include<time.h>
 
 
 //Definitions
 #define MAX_PLAYERS 100
+//global variables aren't the best idea but since we only use one socket...
+int sockfd;
 
 
 int setupServer(int sockfd, char* port);
@@ -28,6 +28,8 @@ int main() {
   addr_len = sizeof(client_addr);
  
   int sockfd = -1, index, playerNum;
+//  int sockfd;
+    int index, playerNum;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
@@ -55,7 +57,6 @@ int main() {
 
   while(1) {
     players[playerNum] = accept(sockfd, (struct sockaddr*) &client_addr, &addr_len);
-
     if(players[playerNum] != -1) 
     {
       printf("someone tried to connect\n");
@@ -145,6 +146,8 @@ int setupServer(int sockfd, char* port) {
    
   //We probably need to return sockfd since it isn't global
   return (sockfd);
+  //Not sure if we need to return sockfd since it isn't global
+  //return (sockfd);
 }
 
 void setupGame(int player1, int player2) {
