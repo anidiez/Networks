@@ -4,25 +4,30 @@
 ** Written by Ana Diez and Steven Basart
 */
 
+
 //Searches current directory for battleship
 #include "battleship.h"
+
 //May not need to include
 #include<sys/stat.h>
 //This one for timer
 #include<time.h>
 
+
+//Definitions
 #define MAX_PLAYERS 100
 
-int setupServer(int , char* );
-void setupGame(int player1, int player2);
-void play();
 
-int main(int argc, char* argv[]){
+int setupServer(int sockfd, char* port);
+void setupGame(int player1, int player2);
+//void play();
+
+int main() {
   struct sockaddr_in client_addr;
   socklen_t addr_len;
   addr_len = sizeof(client_addr);
  
-  int sockfd, index, playerNum;
+  int sockfd = -1, index, playerNum;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
@@ -35,7 +40,7 @@ int main(int argc, char* argv[]){
   //currently doesn't allow for changes without hard coding change
   strcpy(port, DEF_PORT);
 
-  //not sure if we need to get back the changed sockfd or if its stored
+  //Probz need to get sockfd back
   sockfd = setupServer(sockfd, port);
 
   for(index = 0; index < MAX_PLAYERS; index++){
@@ -43,12 +48,17 @@ int main(int argc, char* argv[]){
   }
 
   //Just so I can see what's happening.
+  printf("waiting to accept a player...\n");
+  //If you don't flush stdout it will wait until the server stuff has been
+  //processed for some reason
+  fflush(stdout);
 
   while(1) {
     players[playerNum] = accept(sockfd, (struct sockaddr*) &client_addr, &addr_len);
 
     if(players[playerNum] != -1) 
     {
+      printf("someone tried to connect\n");
       if(player1 < 0 && player2 < 0) 
       {
         time(&timer1);
@@ -84,6 +94,7 @@ int main(int argc, char* argv[]){
       playerNum = (playerNum+1) % MAX_PLAYERS;
     }
   }
+  exit(1);
 }
 
 //Same setup as http
@@ -113,6 +124,7 @@ int setupServer(int sockfd, char* port) {
       printf("Error setting nonblocking");
       exit(EXIT_FAILURE);
     }
+
     if(bind(sockfd, rp->ai_addr, rp->ai_addrlen) == 0){
       break;
     }
@@ -131,18 +143,25 @@ int setupServer(int sockfd, char* port) {
     exit(EXIT_FAILURE);
   }
    
-  //Not sure if we need to return sockfd since it isn't global
+  //We probably need to return sockfd since it isn't global
   return (sockfd);
 }
 
 void setupGame(int player1, int player2) {
-   //test stuff
-   write(player1,"Hello num 1", 12);
-   write(player2,"Hello num 2", 13);
+  //Not sure if write needs the char length + NULL terminator
+  write(player1,"Hello player 1\n", 15);
+  write(player2,"Hello player 2\n", 16);
 
-   shutdown (player1, SHUT_RDWR);
-   shutdown (player2, SHUT_RDWR);
-   close(player1);
-   close(player2);
+  write(player1, "hello again", 12);
+  //write(player2, "herro again", 12);
+
+  //while (TRUE) {
+    
+  //}   
+
+  shutdown (player1, SHUT_RDWR);
+  shutdown (player2, SHUT_RDWR);
+  close(player1);
+  close(player2);
 
 }
