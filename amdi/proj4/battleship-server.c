@@ -25,8 +25,9 @@ int main(int argc, char *argv[]) {
   socklen_t addr_len;
   addr_len = sizeof(client_addr);
  
-  int sockfd = -1, index, playerNum;
-//  int sockfd;
+  int sockfd = -1, index;
+  int playerNum = 0;
+  //  int sockfd;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
