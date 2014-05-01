@@ -36,9 +36,16 @@ ACK   1 byte    1 byte
   Opcode should be 4
   server confirms receipt of client opcode by echoing it
 
+TURN 1byte  1byte
+     ---------------------
+     | Opcode | turn info|
+     ---------------------
+  Opcode shhould be 5
+  turn info is 1 if it's that player's turn, 0 if it's not
+
 ERROR 1 byte   string
       ------------------------
       |Opcode | error message|
       ------------------------
-  Opcode should be 5
+  Opcode should be 6
   error message is an error message (i know, shocking) 

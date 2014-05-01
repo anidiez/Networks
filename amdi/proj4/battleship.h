@@ -26,7 +26,8 @@ HIT = 1,
 SHIP = 2,
 GAME_DATA = 3,
 ACK = 4,
-ERROR = 5,
+TURN = 5,
+ERROR = 6,
 } packet_type;
 /*
 typedef enum {

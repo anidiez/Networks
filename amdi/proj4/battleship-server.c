@@ -265,9 +265,9 @@ void setupGame(int player1, int player2) {
         //save ship
         temp = ParseShipData(p1buf, 1);
         if(temp	 != -1){
-          makePacket(buf, 4, opCode, "");
+          makePacket(buf, ACK, opCode, "");
         }else{
-          makePacket(buf, 5, 0,"error: cannot parse ship data");
+          makePacket(buf, ERROR, 0,"error: cannot parse ship data");
         }
         write(player1,buf,strlen(buf));
         //return ack
@@ -275,7 +275,7 @@ void setupGame(int player1, int player2) {
         //print error message
         printf("%s\n",p1buf + 1);
         //exit -- let other client know of error
-        makePacket(buf, 5,0, "error: opposing player error");
+        makePacket(buf, ERROR,0, "error: opposing player error");
         write(player2, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
@@ -295,9 +295,9 @@ void setupGame(int player1, int player2) {
         //save ship
       temp = ParseShipData(p2buf, 2);
         if(temp != -1){
-          makePacket(buf, 4, opCode, "");
+          makePacket(buf, ACK, opCode, "");
         }else{
-          makePacket(buf, 5, 0,"error: cannot parse ship data");
+          makePacket(buf, ERROR, 0,"error: cannot parse ship data");
         }
         write(player2,buf,strlen(buf));
         //return ack
@@ -305,7 +305,7 @@ void setupGame(int player1, int player2) {
         //print error message
         printf("%s\n",p2buf + 1);
         //exit -- let other client know of error
-        makePacket(buf, 5,0, "error: opposing player error");
+        makePacket(buf, ERROR,0, "error: opposing player error");
         write(player1, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
@@ -366,7 +366,7 @@ void makePacket(char* buf, int opCode, int position, char* data){
     case GAME_DATA:
       //we're using data to pass in the hit or miss... 
       if(data[0] != '0' && data[0] != '1'){
-        sprintf(buf, "5error: invalid hit or miss\n");
+        sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
         return;
       }
       sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
@@ -387,5 +387,6 @@ void makePacket(char* buf, int opCode, int position, char* data){
 //play is missing *********
 void play(int player1, int player2)
 {
+  
 
 }
