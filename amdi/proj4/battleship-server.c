@@ -11,17 +11,21 @@
 
 //Definitions
 #define MAX_PLAYERS 100
+
 //global variables aren't the best idea but since we only use one socket...
 //but Sutcliffe = my hero :/
 //int sockfd;
+
+//Globals
+char player1Board[GAMEBOARD];
+char player2Board[GAMEBOARD];
 
 
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
 void makePacket(char* buf, int opcode, char* data1, char* data2);
-
-void play();
+void play(int, int);
 
 int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
@@ -72,8 +76,7 @@ int main(int argc, char *argv[]) {
          exit(EXIT_FAILURE);
        }
 
-
-        printf("player1 is not zero\n");
+        printf("player1 is here.\n");
       } 
       else 
       {
@@ -87,7 +90,7 @@ int main(int argc, char *argv[]) {
           exit(EXIT_FAILURE);
         }
 
-       printf("player2 is not zero\n");
+       printf("player2 is here. Let the games begin!\n");
       }
     }
 
@@ -166,11 +169,116 @@ int setupServer(int sockfd, char* port) {
   return (sockfd);
 }
 
+int PlaceShip (int ship, int loc, int ori, int playerNum)
+{
+  
+  if(playerNum == 1) 
+  {
+
+  }
+  else if ()
+  {
+
+  }
+  else
+  {
+
+  }
+
+}
+
+int ParseShipData(char *input, int playerNum) 
+{
+  int index = 0, i = 0, c, ship = -1, location = -1, orientation = -1;
+
+  while(true)
+  {
+    c = input[i];
+
+    if (isspace(c) || c == ';')
+    {
+      i++;
+      continue;
+    }
+    if (c == EOF || c == '\n' || c == '\0') // at end, add terminating zero
+    {
+      #ifdef debug
+      printf("what is c before break %c %d i = %d\n",c, (int)c, i);
+      printf("What are these as ints EOF %d \\n %d \\0%d\n",(int)EOF,\
+(int)('\n'), (int)('\0'));
+      #endif
+
+      break;
+    }
+    //sets ship
+    if (index == 0)
+    {
+      ship = (char)c - '0';
+      #ifdef debug
+      printf("what is c %c index = %d ship = %d\n",c,index, ship);
+      #endif
+
+    }
+    //sets location horizontally
+    if (index == 1)
+    {
+      #ifdef debug
+      printf("before c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+      location = (char)c - '0';
+
+      #ifdef debug
+      printf("after upper c %c index = %d loc = %d\n",c,index,location);
+      #endif
+      i++;
+
+    }
+    //sets location vertically and adds them
+    if (index == 2)
+    {
+      location += 10*((int)((char)c-'0'));
+
+      #ifdef debug
+      printf("final loc c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+    }
+    //sets orientation
+    if (index == 3)
+    {
+      orientation = (char)c -'0';
+
+      #ifdef debug
+      printf("what is c %c index = %d ori = %c\n",c,index,orientation);
+      #endif
+    }
+    index++;
+
+  }
+  
+  //Error Checking
+  if (ship > 4 || ship < 0 || orientation < 0 || orientation > 1 ||\
+location < 0 || location > 100) 
+  {
+    return(-1);
+  }
+
+  PlaceShip(ship, location, orientation, playerNum);
+
+  return(1);
+}
+
 void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
-  int numRead = -1;
-  int opCode;
+  int numRead = -1, opCode, index, shipLocation, orientation, shipType;
+
+  //Set both char arrays to '0'
+  for(index = 0; index < GAMEBOARD; index++) {
+    player1Board[index] = '0';
+    player2Board[index] = '0';
+ }
 
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
@@ -180,8 +288,8 @@ void setupGame(int player1, int player2) {
   //write(player2, "herro again", 12);
 
 ///*
-  while (true) {
-   // numRead = -1;
+  while (true) 
+  {
     #ifdef debug
     printf("loop time getting boats");
     fflush(stdout);
@@ -195,6 +303,7 @@ void setupGame(int player1, int player2) {
       if(opCode == SHIP){
         write(player2,"we got your boat",17);
         //save ship
+        ParseShipData(p1buf, 1);
         //return ack
       }else if(opCode == ERROR){
         //print error message
@@ -205,16 +314,32 @@ void setupGame(int player1, int player2) {
       }else{
         //send error
       }
-     // write(player1,"we got your boat",17);
       numRead = -1;
     }
+
+    //player2 stuff
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p2buf);
       fflush(stdout);
-      write(player2,"we got your boat",17);
+      opCode = getOpcode(p2buf);
+      if(opCode == SHIP){
+        write(player2,"we got your boat",17);
+        //save ship
+        ParseShipData(p2buf, 2);
+        //return ack
+      }else if(opCode == ERROR){
+        //print error message
+        printf("%s\n",p2buf + 1);
+        //exit -- maybe let other client know of error
+        exit(EXIT_SUCCESS);
+        //maybe close socket
+      }else{
+        //send error
+      }
       numRead = -1;
     } 
+
     //small pause
     sleep(1);
   }//*/   
@@ -230,17 +355,20 @@ int getOpcode(char* packet){
   int opCode;
   char num[2];
 
-  memset(num,0,3);
+  memset(num,0,2);
   strncpy(num,packet,1);
   opCode = atoi(num);
   return opCode;
 }
 
-//Ana is doing this
-void makePacket(char* buf, int opCode, char* data1, char* data2){
+//Ana is doing this for now MUAHAHAHAHA
+void makePacket(char* buf, int opCode, char* data1, char* data2)
+{
 
 }
 
 //play is missing *********
-void play(){
+void play(int player1, int player2)
+{
+
 }
