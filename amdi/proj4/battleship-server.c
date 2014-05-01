@@ -24,6 +24,7 @@ char player2Board[GAMEBOARD];
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
+int getBoatSize(shipps ship);
 void makePacket(char* buf, int opcode, char* data1, char* data2);
 void play(int, int);
 
@@ -169,102 +170,62 @@ int setupServer(int sockfd, char* port) {
   return (sockfd);
 }
 
-int PlaceShip (int ship, int loc, int ori, int playerNum)
-{
-  
-  if(playerNum == 1) 
-  {
+//int PlaceShip (int ship, int loc, int ori, int playerNum)
 
-  }
-  else if ()
-  {
-
-  }
-  else
-  {
-
-  }
-
-}
 
 int ParseShipData(char *input, int playerNum) 
 {
-  int index = 0, i = 0, c, ship = -1, location = -1, orientation = -1;
+  int i = 0, size = -1, start = -1, right = -1, interval = -1;
 
-  while(true)
-  {
-    c = input[i];
+  char temp[3];
 
-    if (isspace(c) || c == ';')
-    {
-      i++;
-      continue;
-    }
-    if (c == EOF || c == '\n' || c == '\0') // at end, add terminating zero
-    {
-      #ifdef debug
-      printf("what is c before break %c %d i = %d\n",c, (int)c, i);
-      printf("What are these as ints EOF %d \\n %d \\0%d\n",(int)EOF,\
-(int)('\n'), (int)('\0'));
-      #endif
-
-      break;
-    }
-    //sets ship
-    if (index == 0)
-    {
-      ship = (char)c - '0';
-      #ifdef debug
-      printf("what is c %c index = %d ship = %d\n",c,index, ship);
-      #endif
-
-    }
-    //sets location horizontally
-    if (index == 1)
-    {
-      #ifdef debug
-      printf("before c %c index = %d loc = %d\n",c,index,location);
-      #endif
-
-      location = (char)c - '0';
-
-      #ifdef debug
-      printf("after upper c %c index = %d loc = %d\n",c,index,location);
-      #endif
-      i++;
-
-    }
-    //sets location vertically and adds them
-    if (index == 2)
-    {
-      location += 10*((int)((char)c-'0'));
-
-      #ifdef debug
-      printf("final loc c %c index = %d loc = %d\n",c,index,location);
-      #endif
-
-    }
-    //sets orientation
-    if (index == 3)
-    {
-      orientation = (char)c -'0';
-
-      #ifdef debug
-      printf("what is c %c index = %d ori = %c\n",c,index,orientation);
-      #endif
-    }
-    index++;
-
+  strncpy(temp,input + 1,1);
+  shipps ship = atoi(temp);
+  //starting spot
+  strncpy(temp, input+2,2);
+  start = atoi(temp);
+  //if right start from starting and add 1 until length reached
+  right = strncmp(input+4,"1",1);
+  if(right  == 0){
+    interval = 1;
+  } 
+  right = strncmp(input+4,"0",1);
+  if (right == 0) {
+  //else if down start from starting and add 10 until length reached
+    interval = 10;
   }
+  //mark in arrays
+  size = getBoatSize(ship);
+
   
   //Error Checking
-  if (ship > 4 || ship < 0 || orientation < 0 || orientation > 1 ||\
-location < 0 || location > 100) 
+  if (size < 0 || interval < 0 || start < 0 || start > 100) 
   {
     return(-1);
   }
 
-  PlaceShip(ship, location, orientation, playerNum);
+  //Currently treats all boats the same maybe copy over client code for ship
+  //placement later in case we want to distinguish 
+  //PlacingShip****************************
+
+  if(playerNum == 1) {
+  {
+    for(i = 0; i < size; i++)
+    {
+      player1Board[start + (interval*i)] = 'b';
+    }
+  else if (playerNum == 2) 
+  {
+    for(i = 0; i < size; i++)
+    {
+      player2Board[start + (interval*i)] = 'b';
+    }
+  } 
+  else 
+  {
+    printf("What kind of playerNum is that?");
+    return (-1);
+  }
 
   return(1);
 }
@@ -272,7 +233,7 @@ location < 0 || location > 100)
 void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
-  int numRead = -1, opCode, index, shipLocation, orientation, shipType;
+  int numRead = -1, opCode;
 
   //Set both char arrays to '0'
   for(index = 0; index < GAMEBOARD; index++) {
@@ -301,7 +262,7 @@ void setupGame(int player1, int player2) {
       fflush(stdout);
       opCode = getOpcode(p1buf);
       if(opCode == SHIP){
-        write(player2,"we got your boat",17);
+        write(player1,"we got your boat",17);
         //save ship
         ParseShipData(p1buf, 1);
         //return ack
@@ -364,7 +325,27 @@ int getOpcode(char* packet){
 //Ana is doing this for now MUAHAHAHAHA
 void makePacket(char* buf, int opCode, char* data1, char* data2)
 {
-
+int getBoatSize(shipps ship){
+  int size;
+  switch(ship){
+    case A:
+      size = 5;
+      break;
+    case B:
+      size = 4;
+      break;
+    case C:
+    case S:
+      size = 3;
+      break;
+    case P:
+      size = 2;
+      break;
+    default:
+      size = -1;
+      break;
+  }
+  return size;
 }
 
 //play is missing *********
