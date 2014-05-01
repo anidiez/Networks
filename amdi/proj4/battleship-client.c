@@ -468,6 +468,7 @@ int ParseInputSetup(int sockfd, char* input)
     //sets ship
     if (index == 0) 
     { 
+      c = toupper(c); 
       ship = (char)c;
       #ifdef debug
       printf("what is c %c index = %d ship = %c\n",c,index, ship);
@@ -687,6 +688,9 @@ int setupGame(int sockfd)
 
   while (true) 
   {
+    //Can't send null terminator over internet?
+    memset(buffer,0,MAX_BUFF_LEN);
+
     printf("Boats are A, B, C, S, P\n");
     printf("Select boat, location, and orientation(down or right)\n");
     printf("Example: \"B, C5, down\"\n");
