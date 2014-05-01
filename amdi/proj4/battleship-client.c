@@ -568,12 +568,12 @@ int ParseInputSetup(int sockfd, char* input)
   {
     case 'A':
     case 'a':
-      if(CheckAlreadyUsed(A) < 0)
-      {return (-1);}
       if(CheckBounds(location, 5, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 5, oriented) < 0)
       {return(-1);}
+      if(CheckAlreadyUsed(A) < 0)
+      {return (-1);}
       PlaceShip(ship, location, 5, oriented);
       sprintf(string,"20%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
@@ -581,12 +581,12 @@ int ParseInputSetup(int sockfd, char* input)
 
     case 'B':
     case 'b':
-      if(CheckAlreadyUsed(B) < 0)
-      {return (-1);}
       if(CheckBounds(location, 4, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 4, oriented) < 0)
       {return(-1);}
+      if(CheckAlreadyUsed(B) < 0)
+      {return (-1);}
       PlaceShip(ship, location, 4, oriented);
       sprintf(string,"21%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
@@ -594,12 +594,12 @@ int ParseInputSetup(int sockfd, char* input)
 
     case 'C':
     case 'c':
-      if(CheckAlreadyUsed(C) < 0)
-      {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
+      if(CheckAlreadyUsed(C) < 0)
+      {return (-1);}
       PlaceShip(ship, location, 3, oriented);
       sprintf(string,"22%02d;%d",location,oriented);
       write(sockfd,string,strlen(string)); 
@@ -607,12 +607,12 @@ int ParseInputSetup(int sockfd, char* input)
 
     case 'S':
     case 's':
-      if(CheckAlreadyUsed(S) < 0)
-      {return (-1);}
       if(CheckBounds(location, 3, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
+      if(CheckAlreadyUsed(S) < 0)
+      {return (-1);}
       PlaceShip(ship, location, 3, oriented);
       sprintf(string,"23%02d;%d",location,oriented);
       write(sockfd,string,strlen(string)); 
@@ -620,12 +620,12 @@ int ParseInputSetup(int sockfd, char* input)
 
     case 'P':
     case 'p':
-      if(CheckAlreadyUsed(P) < 0)
-      {return (-1);}
       if(CheckBounds(location, 2, oriented) < 0)
       {return (-1);}
       if(CheckCollision(location, 2, oriented) < 0)
       {return(-1);}
+      if(CheckAlreadyUsed(P) < 0)
+      {return (-1);}
       PlaceShip(ship, location, 2, oriented);
       sprintf(string,"24%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
