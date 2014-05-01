@@ -12,7 +12,7 @@ With values as follow
   Opcode should be 1.
   position - we should figure out how to express this
 
-SHIP   1 byte    1 byte   2 bytes    1 byte  string
+SHIP   1 byte    1 byte   2 bytes    1 byte  1 byte
       ----------------------------------------------------
       | Opcode |  type  | position |   ;   | orientation |
       ----------------------------------------------------
@@ -20,7 +20,7 @@ With values as follow:
   Opcode should be 2.
   Type should be (char or number, not sure which).
   Position - 2 bytes - number from 0 to 99 to match array position
-  Orientation should be either "vertical" or "horizontal" (0 or 1? how are we formatting this?)
+  Orientation should be either 0 for down and 1 for right
 
 GAME_DATA 1 byte    2 bytes    1 byte    1 byte
           -------------------------------------------

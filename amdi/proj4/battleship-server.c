@@ -179,13 +179,23 @@ int ParseShipData(char *input, int playerNum)
 
   char temp[3];
 
+  printf("ship data is %s\n",input);
+
   strncpy(temp,input + 1,1);
   shipps ship = atoi(temp);
+
+  printf("ship type is %d\n",ship);
+
   //starting spot
   strncpy(temp, input+2,2);
   start = atoi(temp);
+
+  printf("start is %d\n",start);
+
   //if right start from starting and add 1 until length reached
   right = strncmp(input+4,"1",1);
+
+  printf("if it's right it's");
   if(right  == 0){
     interval = 1;
   } 
