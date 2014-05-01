@@ -179,36 +179,27 @@ int ParseShipData(char *input, int playerNum)
 
   char temp[3];
 
-  printf("ship data is %s\n",input);
-
   strncpy(temp,input + 1,1);
   shipps ship = atoi(temp);
-
-  printf("ship type is %d\n",ship);
 
   //starting spot
   strncpy(temp, input+2,2);
   start = atoi(temp);
 
-  printf("start is %d\n",start);
-
   //if right start from starting and add 1 until length reached
-  orientation = strncmp(input+4,"1",1);
+  orientation = strncmp(input+5,"1",1);
 
-  printf("if it's right it's zero %d", orientation);
   if(orientation  == 0){
     interval = 10;
   } 
-  orientation = strncmp(input+4,"0",1);
+  orientation = strncmp(input+5,"0",1);
 
-  printf("if it's dwon it's zero %d",orientation);
   if (orientation == 0) {
   //else if down start from starting and add 10 until length reached
     interval = 10;
   }
   //mark in arrays
   size = getBoatSize(ship);
-  printf("size is this %d\n", size);
   
   //Error Checking
   if (size < 0 || interval < 0 || start < 0 || start > 100) 
@@ -273,7 +264,7 @@ void setupGame(int player1, int player2) {
       if(opCode == SHIP){
         //save ship
         temp = ParseShipData(p1buf, 1);
-        if(temp	 =! -1){
+        if(temp	 != -1){
           makePacket(buf, 4, opCode, "");
         }else{
           makePacket(buf, 5, 0,"error: cannot parse ship data");
@@ -303,7 +294,7 @@ void setupGame(int player1, int player2) {
       if(opCode == SHIP){
         //save ship
       temp = ParseShipData(p2buf, 2);
-        if(temp =! -1){
+        if(temp != -1){
           makePacket(buf, 4, opCode, "");
         }else{
           makePacket(buf, 5, 0,"error: cannot parse ship data");
