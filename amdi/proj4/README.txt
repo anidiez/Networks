@@ -12,24 +12,22 @@ With values as follow
   Opcode should be 1.
   position - we should figure out how to express this
 
-SHIP   1 byte    1 byte   string    1 byte  string
+SHIP   1 byte    1 byte   2 bytes    1 byte  string
       ----------------------------------------------------
       | Opcode |  type  | position |   ;   | orientation |
       ----------------------------------------------------
 With values as follow:
   Opcode should be 2.
-  Type should be a number between 2 and 5 which reflects the length of the ship.
-  Position - we should figure out how to express this
-  Orientation should be either "vertical" or "horizontal"
+  Type should be (char or number, not sure which).
+  Position - 2 bytes - number from 0 to 99 to match array position
+  Orientation should be either "vertical" or "horizontal" (0 or 1? how are we formatting this?)
 
-GAME_DATA 1 byte    string        1 byte  string
-          ------------------------------------------
-          | Opcode | player board | ; | player hits|
-          ------------------------------------------
+GAME_DATA 1 byte    2 bytes    1 byte    1 byte
+          -------------------------------------------
+          | Opcode | position |   ;   | fail/success|
+          -------------------------------------------
   Opcode should be 3
-  player board should be string of characters representing the current board
-  ; for separating boards
-  player htis should be string of characters representing the hits made (and if they were successful)
+  
 
 ACK   1 byte    1 byte
       --------------------------------

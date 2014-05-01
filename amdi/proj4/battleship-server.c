@@ -19,6 +19,7 @@
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
+int getBoatSize(shipps ship);
 void makePacket(char* buf, int opcode, char* data1, char* data2);
 
 void play();
@@ -172,6 +173,9 @@ void setupGame(int player1, int player2) {
   int numRead = -1;
   int opCode;
 
+  char p1Boats[100];
+  char p2Boats[100];
+
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
@@ -187,14 +191,40 @@ void setupGame(int player1, int player2) {
     fflush(stdout);
     #endif
 
+    int i;
+    for(i  = 0; i < 100; i++){
+      p1Boats[i] =  'o';
+      p2Boats[i] = 'o';
+    }
     numRead = read(player1, p1buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p1buf);
       fflush(stdout);
       opCode = getOpcode(p1buf);
       if(opCode == SHIP){
-        write(player2,"we got your boat",17);
+        write(player1,"we got your boat",17);
         //save ship
+          //type of ship for length
+          char temp[3];
+          strncpy(temp,p1buf + 1,1 );
+          shipps ship = atoi(temp);
+          //starting spot
+          strncpy(temp, p1buf+2,2);
+          int start = atoi(temp);
+          //if right start from starting and add 1 until length reached
+          int interval;
+          int right = strncmp(p1buf+4,"1",1);
+          if(right  == 0){
+            interval = 1;
+          } else{
+          //else if down start from starting and add 10 until length reached
+            interval = 10;
+          }
+          //mark in arrays
+          int size = getBoatSize(ship);
+          for(i = 0; i < size; i++){
+            p1Boats[start + (interval*i)] = 'b';
+          }
         //return ack
       }else if(opCode == ERROR){
         //print error message
@@ -212,7 +242,41 @@ void setupGame(int player1, int player2) {
     if(numRead > 0){
       printf("%s\n",p2buf);
       fflush(stdout);
-      write(player2,"we got your boat",17);
+      if(opCode == SHIP){
+        write(player2,"we got your boat",17);
+        //save ship
+          //type of ship for length
+          char temp[3];
+          strncpy(temp,p2buf + 1,1 );
+          shipps ship = atoi(temp);
+          //starting spot
+          strncpy(temp, p2buf+2,2);
+          int start = atoi(temp);
+          //if right start from starting and add 1 until length reached
+          int interval;
+          int right = strncmp(p2buf+4,"1",1);
+          if(right  == 0){
+            interval = 1;
+          } else{
+          //else if down start from starting and add 10 until length reached
+            interval = 10;
+          }
+          //mark in arrays
+          int size = getBoatSize(ship);
+          for(i = 0; i < size; i++){
+            p1Boats[start + (interval*i)] = 'b';
+          }
+        //return ack
+      }else if(opCode == ERROR){
+        //print error message
+        printf("%s\n",p1buf + 1);
+        //exit -- maybe let other client know of error
+        exit(EXIT_SUCCESS);
+        //maybe close socket
+      }else{
+        //send error
+      }
+     // write(player1,"we got your boat",17);
       numRead = -1;
     } 
     //small pause
@@ -236,8 +300,30 @@ int getOpcode(char* packet){
   return opCode;
 }
 
+int getBoatSize(shipps ship){
+  int size;
+  switch(ship){
+    case A:
+      size = 5;
+      break;
+    case B:
+      size = 4;
+      break;
+    case C:
+    case S:
+      size = 3;
+      break;
+    case P:
+      size = 2;
+      break;
+  }
+  return size;
+}
+
 //Ana is doing this
 void makePacket(char* buf, int opCode, char* data1, char* data2){
+  memset(buf, 0, MAX_BUFF_LEN);
+
 
 }
 

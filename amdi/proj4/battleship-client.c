@@ -449,7 +449,7 @@ int ParseInput(int sockfd, char* input)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
       //write it back to server***********************************8i
-      sprintf(string,"25%d;%d",location,oriented);
+      sprintf(string,"20%d;%d",location,oriented);
       write(sockfd,string,10);
       break;
     case 'B':
@@ -462,7 +462,7 @@ int ParseInput(int sockfd, char* input)
       {return(-1);}
       PlaceShip(ship, location, 4, oriented);
       //write it back to server
-      sprintf(string,"24%d;%d",location,oriented);
+      sprintf(string,"21%d;%d",location,oriented);
       write(sockfd,string,10);
    
       break;
@@ -476,7 +476,7 @@ int ParseInput(int sockfd, char* input)
       {return(-1);}
       PlaceShip(ship, location, 3, oriented);
       //write it back to server
-      sprintf(string,"23%d;%d",location,oriented);
+      sprintf(string,"22%d;%d",location,oriented);
       write(sockfd,string,10);
  
       break;
@@ -504,7 +504,7 @@ int ParseInput(int sockfd, char* input)
       {return(-1);}
       PlaceShip(ship, location, 2, oriented);
       //write it back to server
-      sprintf(string,"22%d;%d",location,oriented);
+      sprintf(string,"24%d;%d",location,oriented);
       write(sockfd,string,10);
  
       break;
