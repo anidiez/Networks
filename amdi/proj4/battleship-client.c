@@ -575,7 +575,7 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 5, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
-      sprintf(string,"20%d;%d",location,oriented);
+      sprintf(string,"20%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
       break;
 
@@ -588,7 +588,7 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 4, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 4, oriented);
-      sprintf(string,"21%d;%d",location,oriented);
+      sprintf(string,"21%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
       break;
 
@@ -601,7 +601,7 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 3, oriented);
-      sprintf(string,"22%d;%d",location,oriented);
+      sprintf(string,"22%02d;%d",location,oriented);
       write(sockfd,string,strlen(string)); 
       break;
 
@@ -614,7 +614,7 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 3, oriented);
-      sprintf(string,"23%d;%d",location,oriented);
+      sprintf(string,"23%02d;%d",location,oriented);
       write(sockfd,string,strlen(string)); 
       break;
 
@@ -627,7 +627,7 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 2, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 2, oriented);
-      sprintf(string,"24%d;%d",location,oriented);
+      sprintf(string,"24%02d;%d",location,oriented);
       write(sockfd,string,strlen(string));
       break;
 
