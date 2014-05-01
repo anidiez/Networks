@@ -687,7 +687,7 @@ int setupGame(int sockfd)
 
   while (true) 
   {
-
+    printf("Boats are A, B, C, S, P\n");
     printf("Select boat, location, and orientation(down or right)\n");
     printf("Example: \"B, C5, down\"\n");
     fflush(stdout);
