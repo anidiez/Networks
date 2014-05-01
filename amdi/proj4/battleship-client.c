@@ -9,55 +9,27 @@
 #define GAMEBOARD 100
 
 //Declare the functions
-//void
 int powerN(int, int, int);
 int convertPortToInt(int);
 int setupGame(int);
-int ParseInput(int,char* input);
+int ParseInputSetup(int,char* input);
+int ParseInputHit(char* input);
 char* getUserInput();
 void displayBoard();
 int CheckBounds(int location, int length, int oriented);
 int CheckCollision(int location, int length, int oriented);
-
+void play(int);
 
 //Globals
 char shipArray[GAMEBOARD];
+int hitsArray[GAMEBOARD];
 int ships[5];
 
-
-int powerN(int number, int base,int exponent){
-  if (exponent < 0) {
-    return 0;
-  }
-  if (exponent == 0){
-    return 1;
-  } else if (exponent == 1) {
-    return number;
-  } else {
-    return (powerN(base*number,base,exponent-1));
-  }
-}
-
-int convertPortToInt(int port) {
-  char c;
-  int index, size = strlen(DEF_PORT);
-
-  size = size -1;
-  index = 0;
-  while (size >= 0) {
-    c = DEF_PORT[size];
-    port += (c - '0')*(powerN(10,10,index));
-    index++;
-    size--;
-  }
-  printf("port = %d\n",port);
-  return(port);
-}
 
 
 //The starting point
 int main() {
-  int port = 0, sockfd;
+  int port = 0, sockfd, status;
   char buffer[MAX_BUFF_LEN];
   static struct sockaddr_in server_addr;
 
@@ -85,15 +57,48 @@ int main() {
     exit(1);
   }
   
-  setupGame(sockfd);
-
+  status = setupGame(sockfd);
+  status = whoseTurn(sockfd);
+  play(sockfd);
 }
 
+//Raises the base to that exponent only ints
+int powerN(int number, int base,int exponent){
+  if (exponent < 0) {
+    return 0;
+  }
+  if (exponent == 0){
+    return 1;
+  } else if (exponent == 1) {
+    return number;
+  } else {
+    return (powerN(base*number,base,exponent-1));
+  }
+}
+//Converts the char port to an int
+int convertPortToInt(int port) {
+  char c;
+  int index, size = strlen(DEF_PORT);
+
+  size = size -1;
+  index = 0;
+  while (size >= 0) {
+    c = DEF_PORT[size];
+    port += (c - '0')*(powerN(10,10,index));
+    index++;
+    size--;
+  }
+  printf("port = %d\n",port);
+  return(port);
+}
+
+
+//Gets the input from the user
 char* getUserInput() 
 {
   int max = 20;
-  char* name = (char*)malloc(max); // allocate buffer
-  if (name == 0) {exit(0);}
+  char* input = (char*)malloc(max); // allocate buffer
+  if (input == 0) {exit(0);}
 
   printf("Enter boat and orientation: \n>");
 
@@ -114,25 +119,25 @@ char* getUserInput()
     int c = getchar();
     if (c == EOF || c == '\n') // at end, add terminating zero
     {
-      name[i] = '\0';
+      input[i] = '\0';
       break;
     }
-    name[i] = c;
+    input[i] = c;
     if (i==max-1) // buffer full
     { 
       max = max+max;
-      name = (char*)realloc(name,max); // get a new and larger buffer
-      if (name == 0) {exit(0);}
+      input = (char*)realloc(input,max); // get a new and larger buffer
+      if (input == 0) {exit(0);}
     }
     i++;
   }
 
-  printf("The input is %s\n", name);
-  return name;
-
+  printf("The input is %s\n", input);
+  return input;
 }
 
-void displayBoard()
+//If type = 0 it'll display shipArray if type = 1 it'll display hits
+void displayBoard(int type)
 {
   int index = 0,index2 = 0;
 
@@ -150,14 +155,44 @@ void displayBoard()
       {
         printf(" %d ",index);
       }
-      printf(" [%c]",shipArray[index*10+index2]);
-      //We can split the print statements to print out X's were hit
+
+      //type 0 equals my ship states
+      if (type == 0) {
+        printf(" [%c]",shipArray[index*10+index2]);
+      } 
+
+      //type 1 equals my hits
+      else if (type == 1)
+      {
+        if (hitsArray[index*10+index2] == 0)
+        {
+          printf(" [O]");
+        }
+        else if(hitsArray[index*10+index2] == 1)
+        {
+          printf(" [X]");
+        }
+        else if(hitsArray[index*10+index2] == 2)
+        {
+          printf(" [!]");          
+        }
+        else
+        {
+          printf("something went wrong in setting up hits\n");
+          return;
+        }
+      } 
+      else
+      {
+        printf("Sorry invalid display type\n");
+        return;
+      }
 
     }
     printf("\n");
   }
-
 }
+
 
 //down == 0
 int CheckBounds(int location, int length, int oriented) 
@@ -362,6 +397,13 @@ int ParseInputHit(char* input)
     }
     index++;
   }
+  //before returning hit check if already done
+  if (hitsArray[hit] != 0)
+  {
+    printf("All of there ships are anchored into place.\n");
+    printf("So there's no need to shoot the same spot twice.\n");
+    return(-1);
+  }
   return hit;
 }
 
@@ -436,7 +478,6 @@ int ParseInputSetup(int sockfd, char* input)
       printf("what is c %c index = %d ship = %c\n",c,index, ship);
       #endif
 
-
       //Clear the rest of the chars after letter and before ,
       while(c != ((int)',') && c != EOF && c != ((int)'\n') && c != ((int)'\0'))
       {
@@ -447,7 +488,6 @@ int ParseInputSetup(int sockfd, char* input)
         i++;
         c = input[i];
       }
-
     }
     //sets location horizontally
     if (index == 1)
@@ -489,13 +529,12 @@ int ParseInputSetup(int sockfd, char* input)
       printf("what is c %c index = %d ori = %c\n",c,index,orientation);
       #endif
 
-     //Clear the rest of the chars after letter and before ,
+      //Clear the rest of the chars after letter and before ,
       while(c != (int)',' && c != EOF && c != (int)'\n' && c != (int)'\0') 
       {
         i++;
         c = input[i];
       }
-
     }
     index++;
   }
@@ -512,15 +551,10 @@ int ParseInputSetup(int sockfd, char* input)
     printf("index was less than three \n");
     return(-1);
   }
-
   if (orientation == 'd' || orientation == 'D')
-  {
-    oriented = 0;
-  }
+  {oriented = 0;}
   else if (orientation == 'r' || orientation == 'R')
-  {
-    oriented = 1;
-  }
+  {oriented = 1;}
   else 
   {
     printf("Invalid orientation. Only right or down.\n");
@@ -531,7 +565,6 @@ int ParseInputSetup(int sockfd, char* input)
   printf("Am I passed orientation? oriented = %d\n", oriented);
   fflush(stdout);
   #endif
-
 
 
   switch (ship) 
@@ -636,7 +669,11 @@ int setupGame(int sockfd)
   {
     ships[index] = 0;
   }
-
+  //Initialize the hits array
+  for(index = 0; index < GAMEBOARD; index++) 
+  {
+    hitsArray[index] = 0;
+  }
 
   index = 0; 
 
@@ -647,7 +684,6 @@ int setupGame(int sockfd)
   {
     printf("And the server says: %s",buffer);
   }
-
 
   printf("Place your ships     shipsize\n");
   printf("(A)ircraft carrier    = 5\n");
@@ -662,7 +698,8 @@ int setupGame(int sockfd)
     printf("Select boat, location, and orientation(down or right)\n");
     printf("Example: \"B, C5, down\"\n");
     fflush(stdout);
-    displayBoard();
+    //displayBoard 0 displays ship placements
+    displayBoard(0);
 
     input = getUserInput();
     #ifdef debug
@@ -678,9 +715,6 @@ int setupGame(int sockfd)
     printf("Did I parse?\n");
     fflush(stdout);
     #endif
-//for right now...
-
-    //For now since
 
     if(index > 0) 
     {
@@ -701,20 +735,38 @@ int setupGame(int sockfd)
     free(input); // release memory allocated for user
    
   }
+}
 
-  //Before going into game loop wait for ack from server to say its your turn
+//Before going into game loop wait for ack from server to say its your turn
+//if its your turn go into game loop (return 1) 
+//else wait for info packet about other users hits
+int whoseTurn (int sockfd) {
+  int readStatus;
+  char buffer[MAX_BUFF_LEN]; 
+ 
+  readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
+  if (readStatus > 0) 
+  {
+    printf("And the server says: %s",buffer);
+    //Parse the input from the server
+    
+  }
+ 
+}
 
-  //if its your turn go into game loop else wait for info packet about other
-  //users hits
+//The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING 
+void play(int sockfd) {
+  int readStatus = -1, status = 4, hit = -1;
+  char buffer[MAX_BUFF_LEN];
+  char *input;
 
-
-  //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING
   while(true) 
   {
     printf("Select location to launch an Anti-Ship missile\n");
     printf("Example: \"C5\"\n");
     fflush(stdout);
-    displayBoard();
+    //display their past hits
+    displayBoard(1);
 
     input = getUserInput();
 
@@ -725,7 +777,7 @@ int setupGame(int sockfd)
     #endif
 
     //Parses the input to see if valid and avoid collisions
-    hit = ParseInput(sockfd, input);
+    hit = ParseInputHit(input);
 
     #ifdef debug
     printf("Did I parse?\n");
@@ -735,30 +787,53 @@ int setupGame(int sockfd)
 
     if(hit > -1) 
     {
-      //reset hit
-      hit = -1;
-      //Write hit to server ******************************************
-      //sprintf(string,"blah%d",hit);
-      //write();
+      //while(status == error) {
 
-      //Receives whether or not the hit was a hit or miss
-      readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
-      if (readStatus > 0) 
-      {
-        printf("And the server says: %s",buffer);
-      }
+        //Write hit to server ******************************************
+        //sprintf(string,"blah%d",hit);
+        //write(sockfd,string,strlen(string));
+
+        //Receives whether or not the hit was a hit or miss
+        readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
+        if (readStatus > 0) 
+        {
+          printf("And the server says: %s",buffer);
+          //Parse hit for hit or miss
+          //status = ParsePacket()
+          //if(status == error){
+          // continue; which will resend the packet
+          //}
+             //Someone won
+          //else if (buffer blah blah check winner status equals win) 
+          //{
+          //printf("You won or lost!");
+          //sleep (10);
+          //exit(1);
+          //}
+          //else
+          //{
+              //status = buffer[0];
+              //buffer at whatever location contains hit/miss
+              //0 for miss
+          //  if(buffer[1] == 0) {hitsArray[hit] = 1;}
+          //  if(buffer[1] == 1) {hitsArray[hit] = 2;}
+          //}
+        }
       
-      //wait until you receive input from server about other user
-      //while(true) {
-      //
+        //wait until you receive input from server about other user
+        //while(true) 
+        //{
+        //  
+        //}
+        //Now display the board again to user
+        //displayBoard(0);
       //}
+    //reset hit
+    hit = -1;
 
     }
 
     free(input); // release memory allocated for user
-   
-   
   }
-
 }
 
