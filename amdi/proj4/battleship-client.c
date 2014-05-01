@@ -268,8 +268,105 @@ int CheckAlreadyUsed(int shippie)
   }
 } 
 
-//Note to self pass in sockfd to write to server in case of good input*******
-int ParseInput(int sockfd, char* input)
+
+int ParseInputHit(char* input)
+{
+  int i = 0, c, index = 0, hit = -1;
+
+  #ifdef debug  
+  printf("Look at me parse hits\n");
+  printf("The input should still be %s\n",input);
+  fflush(stdout);
+  #endif
+
+  while (true) // skip leading whitespace
+  {
+    c = input[i];
+    
+    #ifdef debug
+    printf("what is c %c\n",c);
+    fflush(stdout);
+    #endif
+
+    if (c == EOF || c == '\n') {break;} // end of file
+    if (!isspace(c)) 
+    {
+      if(i != 0)
+      {
+        i--;
+      }
+      break;
+    }
+    i++;
+  }
+
+  #ifdef debug
+  printf("we're halfway ~parsed c is %c i is %d\n",c,i);
+  fflush(stdout);
+  #endif
+
+  while (true) 
+  {
+    c = input[i];
+
+    #ifdef debug
+    printf("c is %c index is %d i is %d\n",c, index, i); 
+    fflush(stdout);
+    #endif
+
+    if (isspace(c) || c == ',') 
+    {
+      i++;
+      continue;
+    }
+    if (c == EOF || c == '\n' || c == '\0') // at end, add terminating zero
+    {
+      #ifdef debug
+      printf("what is c before break %c %d i = %d\n",c, (int)c, i);
+      printf("What are these as ints EOF %d \\n %d \\0%d\n",(int)EOF,\
+(int)('\n'), (int)('\0'));
+      #endif
+
+      break;
+    }
+
+    //sets location horizontally
+    if (index == 0)
+    { 
+      #ifdef debug
+      printf("before c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+      c = toupper(c);
+      hit = c - 'A';
+      #ifdef debug
+      printf("after upper c %c index = %d loc = %d\n",c,index,location);
+      #endif
+      i++;
+
+    }
+    //sets location vertically and adds them
+    if (index == 1)
+    { 
+      hit += 10*((int)((char)c-'0'));
+
+      #ifdef debug
+      printf("final loc c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+      //Check if hit is in range
+      if (hit < 0 || hit > 100) {
+        printf("Sorry hit was not in range. Try again\n");
+        return (-1);
+      }
+    }
+    index++;
+  }
+  return hit;
+}
+
+//Parses input and writes to server returns 1 on success and -1 on failure
+int ParseInputSetup(int sockfd, char* input)
 {
   int i = 0, c, index = 0, location, oriented, returnValue = -1;
   char ship, orientation, check;
@@ -526,7 +623,7 @@ int ParseInput(int sockfd, char* input)
 int setupGame(int sockfd) 
 {
   char buffer[MAX_BUFF_LEN]; 
-  int index = 0, readStatus = 0, placed = 0;
+  int index = 0, readStatus = 0, placed = 0, hit = -1;
   char *input;
 
   //Initialize the game board
@@ -575,7 +672,7 @@ int setupGame(int sockfd)
     #endif
 
     //Parses the input to see if valid and avoid collisions
-    index = ParseInput(sockfd, input);
+    index = ParseInputSetup(sockfd, input);
 
     #ifdef debug
     printf("Did I parse?\n");
@@ -601,9 +698,66 @@ int setupGame(int sockfd)
     }
 
     free(input); // release memory allocated for user
- 
-    
+   
   }
- 
+
+  //Before going into game loop wait for ack from server to say its your turn
+
+  //if its your turn go into game loop else wait for info packet about other
+  //users hits
+
+
+  //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING
+  while(true) 
+  {
+    printf("Select location to launch an Anti-Ship missile\n");
+    printf("Example: \"C5\"\n");
+    fflush(stdout);
+    displayBoard();
+
+    input = getUserInput();
+
+    #ifdef debug
+    printf("Did I survive getting input?\n");
+    printf("And the input is %s\n",input);
+    fflush(stdout);
+    #endif
+
+    //Parses the input to see if valid and avoid collisions
+    hit = ParseInput(sockfd, input);
+
+    #ifdef debug
+    printf("Did I parse?\n");
+    fflush(stdout);
+    #endif
+
+
+    if(hit > -1) 
+    {
+      //reset hit
+      hit = -1;
+      //Write hit to server ******************************************
+      //sprintf(string,"blah%d",hit);
+      //write();
+
+      //Receives whether or not the hit was a hit or miss
+      readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
+      if (readStatus > 0) 
+      {
+        printf("And the server says: %s",buffer);
+      }
+      
+      //wait until you receive input from server about other user
+      //while(true) {
+      //
+      //}
+
+    }
+
+    free(input); // release memory allocated for user
+   
+   
+  }
+
 }
 
