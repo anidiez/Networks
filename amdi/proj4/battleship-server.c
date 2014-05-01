@@ -11,9 +11,14 @@
 
 //Definitions
 #define MAX_PLAYERS 100
+
 //global variables aren't the best idea but since we only use one socket...
 //but Sutcliffe = my hero :/
 //int sockfd;
+
+//Globals
+char player1Board[GAMEBOARD];
+char player2Board[GAMEBOARD];
 
 
 int setupServer(int sockfd, char* port);
@@ -21,8 +26,7 @@ void setupGame(int player1, int player2);
 int getOpcode(char* packet);
 int getBoatSize(shipps ship);
 void makePacket(char* buf, int opcode, char* data1, char* data2);
-
-void play();
+void play(int, int);
 
 int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
@@ -73,8 +77,7 @@ int main(int argc, char *argv[]) {
          exit(EXIT_FAILURE);
        }
 
-
-        printf("player1 is not zero\n");
+        printf("player1 is here.\n");
       } 
       else 
       {
@@ -88,7 +91,7 @@ int main(int argc, char *argv[]) {
           exit(EXIT_FAILURE);
         }
 
-       printf("player2 is not zero\n");
+       printf("player2 is here. Let the games begin!\n");
       }
     }
 
@@ -167,14 +170,77 @@ int setupServer(int sockfd, char* port) {
   return (sockfd);
 }
 
+//int PlaceShip (int ship, int loc, int ori, int playerNum)
+
+
+int ParseShipData(char *input, int playerNum) 
+{
+  int i = 0, size = -1, start = -1, right = -1, interval = -1;
+
+  char temp[3];
+
+  strncpy(temp,input + 1,1);
+  shipps ship = atoi(temp);
+  //starting spot
+  strncpy(temp, input+2,2);
+  start = atoi(temp);
+  //if right start from starting and add 1 until length reached
+  right = strncmp(input+4,"1",1);
+  if(right  == 0){
+    interval = 1;
+  } 
+  right = strncmp(input+4,"0",1);
+  if (right == 0) {
+  //else if down start from starting and add 10 until length reached
+    interval = 10;
+  }
+  //mark in arrays
+  size = getBoatSize(ship);
+
+  
+  //Error Checking
+  if (size < 0 || interval < 0 || start < 0 || start > 100) 
+  {
+    return(-1);
+  }
+
+  //Currently treats all boats the same maybe copy over client code for ship
+  //placement later in case we want to distinguish 
+  //PlacingShip****************************
+
+  if(playerNum == 1) {
+  {
+    for(i = 0; i < size; i++)
+    {
+      player1Board[start + (interval*i)] = 'b';
+    }
+  else if (playerNum == 2) 
+  {
+    for(i = 0; i < size; i++)
+    {
+      player2Board[start + (interval*i)] = 'b';
+    }
+  } 
+  else 
+  {
+    printf("What kind of playerNum is that?");
+    return (-1);
+  }
+
+  return(1);
+}
+
 void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
-  int numRead = -1;
-  int opCode;
+  char buf[MAX_BUFF_LEN];
+  int numRead = -1, opCode;
 
-  char p1Boats[100];
-  char p2Boats[100];
+  //Set both char arrays to '0'
+  for(index = 0; index < GAMEBOARD; index++) {
+    player1Board[index] = '0';
+    player2Board[index] = '0';
+ }
 
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
@@ -184,101 +250,71 @@ void setupGame(int player1, int player2) {
   //write(player2, "herro again", 12);
 
 ///*
-  while (true) {
-   // numRead = -1;
+  while (true) 
+  {
     #ifdef debug
     printf("loop time getting boats");
     fflush(stdout);
     #endif
 
-    int i;
-    for(i  = 0; i < 100; i++){
-      p1Boats[i] =  'o';
-      p2Boats[i] = 'o';
-    }
     numRead = read(player1, p1buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p1buf);
       fflush(stdout);
       opCode = getOpcode(p1buf);
       if(opCode == SHIP){
-        write(player1,"we got your boat",17);
         //save ship
-          //type of ship for length
-          char temp[3];
-          strncpy(temp,p1buf + 1,1 );
-          shipps ship = atoi(temp);
-          //starting spot
-          strncpy(temp, p1buf+2,2);
-          int start = atoi(temp);
-          //if right start from starting and add 1 until length reached
-          int interval;
-          int right = strncmp(p1buf+4,"1",1);
-          if(right  == 0){
-            interval = 1;
-          } else{
-          //else if down start from starting and add 10 until length reached
-            interval = 10;
-          }
-          //mark in arrays
-          int size = getBoatSize(ship);
-          for(i = 0; i < size; i++){
-            p1Boats[start + (interval*i)] = 'b';
-          }
+        if(ParseShipData(p1buf, 1) =! -1){
+          makePacket(buf, 4, opCode, NULL);
+        }else{
+          makePackeet(buf, 5, 0,"error: cannot parse ship data");
+        }
+        write(player1,buf,strlen(buf));
         //return ack
       }else if(opCode == ERROR){
         //print error message
         printf("%s\n",p1buf + 1);
-        //exit -- maybe let other client know of error
+        //exit -- let other client know of error
+        makePacket(buf, 5,0, "error: opposing player error");
+        write(player2, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
       }else{
         //send error
       }
-     // write(player1,"we got your boat",17);
       numRead = -1;
     }
+
+    //player2 stuff
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
     if(numRead > 0){
       printf("%s\n",p2buf);
       fflush(stdout);
+      opCode = getOpcode(p2buf);
       if(opCode == SHIP){
-        write(player2,"we got your boat",17);
         //save ship
-          //type of ship for length
-          char temp[3];
-          strncpy(temp,p2buf + 1,1 );
-          shipps ship = atoi(temp);
-          //starting spot
-          strncpy(temp, p2buf+2,2);
-          int start = atoi(temp);
-          //if right start from starting and add 1 until length reached
-          int interval;
-          int right = strncmp(p2buf+4,"1",1);
-          if(right  == 0){
-            interval = 1;
-          } else{
-          //else if down start from starting and add 10 until length reached
-            interval = 10;
-          }
-          //mark in arrays
-          int size = getBoatSize(ship);
-          for(i = 0; i < size; i++){
-            p1Boats[start + (interval*i)] = 'b';
-          }
+        if(ParseShipData(p2buf, 2) =! -1){
+          makePacket(buf, 4, opCode, NULL);
+        }
+        }else{
+          makePacket(buf, 5, 0,"error: cannot parse ship data");
+        }
+        write(player2,buf,strlen(buf));
         //return ack
       }else if(opCode == ERROR){
         //print error message
-        printf("%s\n",p1buf + 1);
-        //exit -- maybe let other client know of error
+        printf("%s\n",p2buf + 1);
+        //exit -- let other client know of error
+        makePacket(buf, 5,0, "error: opposing player error");
+        write(player1, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
       }else{
         //send error
       }
-     // write(player1,"we got your boat",17);
       numRead = -1;
     } 
+
     //small pause
     sleep(1);
   }//*/   
@@ -300,6 +336,7 @@ int getOpcode(char* packet){
   return opCode;
 }
 
+//Ana is doing this for now MUAHAHAHAHA
 int getBoatSize(shipps ship){
   int size;
   switch(ship){
@@ -316,6 +353,9 @@ int getBoatSize(shipps ship){
     case P:
       size = 2;
       break;
+    default:
+      size = -1;
+      break;
   }
   return size;
 }
@@ -330,15 +370,15 @@ void makePacket(char* buf, int opCode, int position, char* data){
         sprintf(buf, "5error: invalid hit or miss\n");
         return;
       }
-      sprintf(buf, "%d%d;%c", opCode,position,data[0]);
+      sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
       break;
     case ACK:
       //here we're just using position as the opcode we're confirming we got
       //don't overthink it it's just convenience of types
-      sprintf(buf,"%d%d",opCode,position);
+      sprintf(buf,"%d%d\n",opCode,position);
       break;
     case ERROR:
-      sprintf(buf,"%d%s",opCode, data);
+      sprintf(buf,"%d%s\n",opCode, data);
       break;
   }
   //we don't have to return anything because buf is passed in as pointer
@@ -346,5 +386,7 @@ void makePacket(char* buf, int opCode, int position, char* data){
 }
 
 //play is missing *********
-void play(){
+void play(int player1, int player2)
+{
+
 }

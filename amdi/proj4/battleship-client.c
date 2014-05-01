@@ -3,11 +3,6 @@
 //Libraries to include
 #include "battleship.h"
 
-//--Predefined
-#define TRUE 1
-#define FALSE 0
-#define GAMEBOARD 100
-
 //Declare the functions
 int powerN(int, int, int);
 int convertPortToInt(int);
@@ -567,6 +562,8 @@ int ParseInputSetup(int sockfd, char* input)
   #endif
 
 
+//Need to check if I used the enums correctly here*******************
+
   switch (ship) 
   {
     case 'A':
@@ -578,10 +575,10 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 5, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 5, oriented);
-      //write it back to server***********************************8i
       sprintf(string,"20%d;%d",location,oriented);
-      write(sockfd,string,10);
+      write(sockfd,string,strlen(string));
       break;
+
     case 'B':
     case 'b':
       if(CheckAlreadyUsed(B) < 0)
@@ -591,11 +588,10 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 4, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 4, oriented);
-      //write it back to server
       sprintf(string,"21%d;%d",location,oriented);
-      write(sockfd,string,10);
-   
+      write(sockfd,string,strlen(string));
       break;
+
     case 'C':
     case 'c':
       if(CheckAlreadyUsed(C) < 0)
@@ -605,11 +601,10 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 3, oriented);
-      //write it back to server
       sprintf(string,"22%d;%d",location,oriented);
-      write(sockfd,string,10);
- 
+      write(sockfd,string,strlen(string)); 
       break;
+
     case 'S':
     case 's':
       if(CheckAlreadyUsed(S) < 0)
@@ -619,11 +614,10 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 3, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 3, oriented);
-      //write it back to server
       sprintf(string,"23%d;%d",location,oriented);
-      write(sockfd,string,10);
- 
+      write(sockfd,string,strlen(string)); 
       break;
+
     case 'P':
     case 'p':
       if(CheckAlreadyUsed(P) < 0)
@@ -633,11 +627,10 @@ int ParseInputSetup(int sockfd, char* input)
       if(CheckCollision(location, 2, oriented) < 0)
       {return(-1);}
       PlaceShip(ship, location, 2, oriented);
-      //write it back to server
       sprintf(string,"24%d;%d",location,oriented);
-      write(sockfd,string,10);
- 
+      write(sockfd,string,strlen(string));
       break;
+
     default:
       printf("Sorry invalid ship try again\n");
   }
@@ -750,6 +743,11 @@ int whoseTurn (int sockfd) {
     printf("And the server says: %s",buffer);
     //Parse the input from the server
     
+  }
+  //Lets stop here and then go step by step for now**********************
+  while(true) {
+    printf("Check if everything was set up correctly");
+    sleep(5);
   }
  
 }

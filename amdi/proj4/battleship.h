@@ -17,6 +17,7 @@
 #define DEF_PORT "3380"
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
 #define MAX_BUFF_LEN 517
+#define GAMEBOARD 100
 
 #define MAX_PLAYERS 100
 
