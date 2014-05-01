@@ -175,7 +175,7 @@ int setupServer(int sockfd, char* port) {
 
 int ParseShipData(char *input, int playerNum) 
 {
-  int i = 0, size = -1, start = -1, right = -1, interval = -1;
+  int i = 0, size = -1, start = -1, orientation = -1, interval = -1;
 
   char temp[3];
 
@@ -193,20 +193,22 @@ int ParseShipData(char *input, int playerNum)
   printf("start is %d\n",start);
 
   //if right start from starting and add 1 until length reached
-  right = strncmp(input+4,"1",1);
+  orientation = strncmp(input+4,"1",1);
 
-  printf("if it's right it's");
-  if(right  == 0){
-    interval = 1;
+  printf("if it's right it's zero %d", orientation);
+  if(orientation  == 0){
+    interval = 10;
   } 
-  right = strncmp(input+4,"0",1);
-  if (right == 0) {
+  orientation = strncmp(input+4,"0",1);
+
+  printf("if it's dwon it's zero %d",orientation);
+  if (orientation == 0) {
   //else if down start from starting and add 10 until length reached
     interval = 10;
   }
   //mark in arrays
   size = getBoatSize(ship);
-
+  printf("size is this %d\n", size);
   
   //Error Checking
   if (size < 0 || interval < 0 || start < 0 || start > 100) 
