@@ -25,7 +25,7 @@ int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
 int getBoatSize(shipps ship);
-void makePacket(char* buf, int opcode, char* data1, char* data2);
+void makePacket(char* buf, int opcode, int position, char* data2);
 void play(int, int);
 
 int main(int argc, char *argv[]) {
@@ -208,13 +208,13 @@ int ParseShipData(char *input, int playerNum)
   //placement later in case we want to distinguish 
   //PlacingShip****************************
 
-  if(playerNum == 1) {
+  if(playerNum == 1) 
   {
     for(i = 0; i < size; i++)
     {
       player1Board[start + (interval*i)] = 'b';
     }
-  else if (playerNum == 2) 
+  }else if (playerNum == 2) 
   {
     for(i = 0; i < size; i++)
     {
@@ -234,7 +234,7 @@ void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
   char buf[MAX_BUFF_LEN];
-  int numRead = -1, opCode;
+  int numRead = -1, opCode, index, temp;
 
   //Set both char arrays to '0'
   for(index = 0; index < GAMEBOARD; index++) {
@@ -246,10 +246,6 @@ void setupGame(int player1, int player2) {
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
 
-  //write(player1, "hello again", 12);
-  //write(player2, "herro again", 12);
-
-///*
   while (true) 
   {
     #ifdef debug
@@ -264,10 +260,11 @@ void setupGame(int player1, int player2) {
       opCode = getOpcode(p1buf);
       if(opCode == SHIP){
         //save ship
-        if(ParseShipData(p1buf, 1) =! -1){
-          makePacket(buf, 4, opCode, NULL);
+        temp = ParseShipData(p1buf, 1);
+        if(temp	 =! -1){
+          makePacket(buf, 4, opCode, "");
         }else{
-          makePackeet(buf, 5, 0,"error: cannot parse ship data");
+          makePacket(buf, 5, 0,"error: cannot parse ship data");
         }
         write(player1,buf,strlen(buf));
         //return ack
@@ -293,9 +290,9 @@ void setupGame(int player1, int player2) {
       opCode = getOpcode(p2buf);
       if(opCode == SHIP){
         //save ship
-        if(ParseShipData(p2buf, 2) =! -1){
-          makePacket(buf, 4, opCode, NULL);
-        }
+      temp = ParseShipData(p2buf, 2);
+        if(temp =! -1){
+          makePacket(buf, 4, opCode, "");
         }else{
           makePacket(buf, 5, 0,"error: cannot parse ship data");
         }
@@ -317,13 +314,12 @@ void setupGame(int player1, int player2) {
 
     //small pause
     sleep(1);
-  }//*/   
+  }   
 
-  shutdown (player1, SHUT_RDWR);
-  shutdown (player2, SHUT_RDWR);
+  shutdown(player1, SHUT_RDWR);
+  shutdown(player2, SHUT_RDWR);
   close(player1);
   close(player2);
-
 }
 
 int getOpcode(char* packet){
