@@ -678,6 +678,7 @@ int setupGame(int sockfd)
     printf("Did I parse?\n");
     fflush(stdout);
     #endif
+//for right now...
 
     //For now since
 

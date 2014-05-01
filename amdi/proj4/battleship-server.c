@@ -18,7 +18,10 @@
 
 int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
-//void play();
+int getOpcode(char* packet);
+void makePacket(char* buf, int opcode, char* data1, char* data2);
+
+void play();
 
 int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
@@ -27,7 +30,6 @@ int main(int argc, char *argv[]) {
  
   int sockfd = -1, index;
   int playerNum = 0;
-  //  int sockfd;
   int player1 = -1, player2 = -1;
   char port[6];
   int players[MAX_PLAYERS];
@@ -62,6 +64,7 @@ int main(int argc, char *argv[]) {
       {
         time(&timer1);
         player1 = players[playerNum];
+
        //set player1 socket fd to nonblocking
        if (fcntl(player1, F_SETFL, O_NONBLOCK) < 0) 
        {
@@ -76,6 +79,7 @@ int main(int argc, char *argv[]) {
       {
         time(&timer2);
         player2 = players[playerNum];
+        
         //set player2 socket fd to nonblocking
         if (fcntl(player2, F_SETFL, O_NONBLOCK) < 0) 
         {
@@ -100,7 +104,8 @@ int main(int argc, char *argv[]) {
       } else {
         player1 = -1;
         player2 = -1;
-        //Also reset players array players[] to -1;
+        players[playerNum] = -1;
+        players[playerNum-1] = -1;
       }
     }
     while(players[playerNum] !=-1)
@@ -159,11 +164,14 @@ int setupServer(int sockfd, char* port) {
    
   //We probably need to return sockfd since it isn't global
   return (sockfd);
-  //Not sure if we need to return sockfd since it isn't global
-  //return (sockfd);
 }
 
 void setupGame(int player1, int player2) {
+  char p1buf[MAX_BUFF_LEN];
+  char p2buf[MAX_BUFF_LEN];
+  int numRead = -1;
+  int opCode;
+
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
@@ -171,13 +179,68 @@ void setupGame(int player1, int player2) {
   //write(player1, "hello again", 12);
   //write(player2, "herro again", 12);
 
-  //while (TRUE) {
-    
-  //}   
+///*
+  while (true) {
+   // numRead = -1;
+    #ifdef debug
+    printf("loop time getting boats");
+    fflush(stdout);
+    #endif
+
+    numRead = read(player1, p1buf, MAX_BUFF_LEN);
+    if(numRead > 0){
+      printf("%s\n",p1buf);
+      fflush(stdout);
+      opCode = getOpcode(p1buf);
+      if(opCode == SHIP){
+        write(player2,"we got your boat",17);
+        //save ship
+        //return ack
+      }else if(opCode == ERROR){
+        //print error message
+        printf("%s\n",p1buf + 1);
+        //exit -- maybe let other client know of error
+        exit(EXIT_SUCCESS);
+        //maybe close socket
+      }else{
+        //send error
+      }
+     // write(player1,"we got your boat",17);
+      numRead = -1;
+    }
+    numRead = read(player2, p2buf, MAX_BUFF_LEN);
+    if(numRead > 0){
+      printf("%s\n",p2buf);
+      fflush(stdout);
+      write(player2,"we got your boat",17);
+      numRead = -1;
+    } 
+    //small pause
+    sleep(1);
+  }//*/   
 
   shutdown (player1, SHUT_RDWR);
   shutdown (player2, SHUT_RDWR);
   close(player1);
   close(player2);
 
+}
+
+int getOpcode(char* packet){
+  int opCode;
+  char num[2];
+
+  memset(num,0,3);
+  strncpy(num,packet,1);
+  opCode = atoi(num);
+  return opCode;
+}
+
+//Ana is doing this
+void makePacket(char* buf, int opCode, char* data1, char* data2){
+
+}
+
+//play is missing *********
+void play(){
 }

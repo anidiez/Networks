@@ -24,9 +24,10 @@ typedef enum {
 HIT = 1,
 SHIP = 2,
 GAME_DATA = 3,
-ERROR = 4,
+ACK = 4,
+ERROR = 5,
 } packet_type;
-
+/*
 typedef enum {
 AIRCARRIER,
 BATTLESHIP,
@@ -34,7 +35,7 @@ CRUISER,
 SUBMARINE,
 PATROL,
 } boats;
-
+*/
 typedef enum {
 A = 0,
 B = 1,

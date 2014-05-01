@@ -15,7 +15,6 @@ debug:
 	$(CC) -o server battleship-server.c -g -Ddebug
 	$(CC) -o client battleship-client.c -g -Ddebug
 
-
 help:
 	@echo write help here. 
 
