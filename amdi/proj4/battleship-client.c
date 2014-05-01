@@ -166,8 +166,14 @@ int CheckBounds(int location, int length, int oriented)
   tens = location/10;
   ones = location % 10;
 
-  //if going to the right
-  if (oriented == 1)
+  #ifdef debug
+  printf("The loc = %d len = %d ori = %d tens = %d ones =%d \n",\
+location,length,oriented,tens,ones);
+  fflush(stdout);
+  #endif
+
+  //if going to the down
+  if (oriented == 0)
   {
     //11 because 10 can exist
     if((length + tens) > 11 ) 
@@ -176,8 +182,8 @@ int CheckBounds(int location, int length, int oriented)
       return (-1);
     }
   } 
-  //if going down
-  if(oriented == 0) 
+  //if going right
+  if(oriented == 1) 
   {
     //11 because 10 can exist
     if((length + ones) > 11 ) 
@@ -195,19 +201,6 @@ int CheckCollision(int location, int length, int oriented)
   tens = location/10;
   ones = location % 10;
 
-  //if going to the right
-  if (oriented == 1)
-  {
-    for(index = 0; index < length; index++) 
-    {
-      //11 because 10 can exist
-      if((shipArray[location + index]) != '0') 
-      {
-        printf("Sorry can't place ships on top of one another. Try again\n");
-        return (-1);
-      }
-    }
-  } 
   //if going down
   if(oriented == 0) 
   {
@@ -221,6 +214,19 @@ int CheckCollision(int location, int length, int oriented)
       }
     }
   }
+  //if going to the right
+  if (oriented == 1)
+  {
+    for(index = 0; index < length; index++) 
+    {
+      //11 because 10 can exist
+      if((shipArray[location + index]) != '0') 
+      {
+        printf("Sorry can't place ships on top of one another. Try again\n");
+        return (-1);
+      }
+    }
+  } 
   return (1);
 }
 
@@ -229,14 +235,6 @@ void PlaceShip(char shippie, int location, int size, int oriented)
 {
   int index = 0;
 
-  //if going to the right
-  if (oriented == 1)
-  {
-    for(index = 0; index < size; index++) 
-    {
-      shipArray[location + index] = shippie;
-    }
-  } 
   //if going down
   if(oriented == 0) 
   {
@@ -245,6 +243,14 @@ void PlaceShip(char shippie, int location, int size, int oriented)
       shipArray[location + (10*index)] = shippie;
     }
   }
+  //if going to the right
+  if (oriented == 1)
+  {
+    for(index = 0; index < size; index++) 
+    {
+      shipArray[location + index] = shippie;
+    }
+  } 
 
 }
 
@@ -399,7 +405,7 @@ int ParseInput(int sockfd, char* input)
 
   #ifdef debug
   printf("what is c %c and i = %d\n",c,i);
-  printf("ship = %c orient = %c loc = %d",ship, orientation, location);
+  printf("ship = %c orient = %c loc = %d\n",ship, orientation, location);
   fflush(stdout);
   #endif
 
@@ -425,7 +431,7 @@ int ParseInput(int sockfd, char* input)
   }
 
   #ifdef debug
-  printf("Am I passed orientation?\n");
+  printf("Am I passed orientation? oriented = %d\n", oriented);
   fflush(stdout);
   #endif
 

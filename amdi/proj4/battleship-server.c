@@ -20,7 +20,8 @@ int setupServer(int sockfd, char* port);
 void setupGame(int player1, int player2);
 int getOpcode(char* packet);
 void makePacket(char* buf, int opcode, char* data1, char* data2);
-//void play();
+
+void play();
 
 int main(int argc, char *argv[]) {
   struct sockaddr_in client_addr;
@@ -64,10 +65,13 @@ int main(int argc, char *argv[]) {
         time(&timer1);
         player1 = players[playerNum];
 
-        if (fcntl(player1, F_SETFL, O_NONBLOCK) < 0) {
-          printf("Error setting nonblocking");
-          exit(EXIT_FAILURE);
-        }
+       //set player1 socket fd to nonblocking
+       if (fcntl(player1, F_SETFL, O_NONBLOCK) < 0) 
+       {
+         printf("Error setting nonblocking");
+         exit(EXIT_FAILURE);
+       }
+
 
         printf("player1 is not zero\n");
       } 
@@ -75,11 +79,15 @@ int main(int argc, char *argv[]) {
       {
         time(&timer2);
         player2 = players[playerNum];
-        if (fcntl(player2, F_SETFL, O_NONBLOCK) < 0) {
+        
+        //set player2 socket fd to nonblocking
+        if (fcntl(player2, F_SETFL, O_NONBLOCK) < 0) 
+        {
           printf("Error setting nonblocking");
           exit(EXIT_FAILURE);
         }
-        printf("player2 is not zero\n");
+
+       printf("player2 is not zero\n");
       }
     }
 
@@ -162,6 +170,7 @@ void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
   int numRead = -1;
+  int opCode;
 
   //Not sure if write needs the char length + NULL terminator
   write(player1,"Hello player 1\n", 15);
@@ -182,7 +191,21 @@ void setupGame(int player1, int player2) {
     if(numRead > 0){
       printf("%s\n",p1buf);
       fflush(stdout);
-      write(player1,"we got your boat",17);
+      opCode = getOpcode(p1buf);
+      if(opCode == SHIP){
+        write(player2,"we got your boat",17);
+        //save ship
+        //return ack
+      }else if(opCode == ERROR){
+        //print error message
+        printf("%s\n",p1buf + 1);
+        //exit -- maybe let other client know of error
+        exit(EXIT_SUCCESS);
+        //maybe close socket
+      }else{
+        //send error
+      }
+     // write(player1,"we got your boat",17);
       numRead = -1;
     }
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
@@ -213,6 +236,11 @@ int getOpcode(char* packet){
   return opCode;
 }
 
+//Ana is doing this
 void makePacket(char* buf, int opCode, char* data1, char* data2){
 
+}
+
+//play is missing *********
+void play(){
 }

@@ -24,7 +24,8 @@ typedef enum {
 HIT = 1,
 SHIP = 2,
 GAME_DATA = 3,
-ERROR = 4,
+ACK = 4,
+ERROR = 5,
 } packet_type;
 /*
 typedef enum {
