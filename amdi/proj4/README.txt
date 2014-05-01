@@ -4,7 +4,7 @@ Servers expect to receive hits and ships from the client. Clients expect to rece
 
 The expected packet formatting for each of these packets is as follows:
 
-HIT   1 byte     string
+HIT   1 byte     2 bytes
       ---------------------
       | Opcode | position |
       ---------------------

@@ -294,7 +294,7 @@ int getOpcode(char* packet){
   int opCode;
   char num[2];
 
-  memset(num,0,3);
+  memset(num,0,2);
   strncpy(num,packet,1);
   opCode = atoi(num);
   return opCode;
@@ -321,10 +321,28 @@ int getBoatSize(shipps ship){
 }
 
 //Ana is doing this
-void makePacket(char* buf, int opCode, char* data1, char* data2){
+void makePacket(char* buf, int opCode, int position, char* data){
   memset(buf, 0, MAX_BUFF_LEN);
-
-
+  switch (opCode){
+    case GAME_DATA:
+      //we're using data to pass in the hit or miss... 
+      if(data[0] != '0' && data[0] != '1'){
+        sprintf(buf, "5error: invalid hit or miss\n");
+        return;
+      }
+      sprintf(buf, "%d%d;%c", opCode,position,data[0]);
+      break;
+    case ACK:
+      //here we're just using position as the opcode we're confirming we got
+      //don't overthink it it's just convenience of types
+      sprintf(buf,"%d%d",opCode,position);
+      break;
+    case ERROR:
+      sprintf(buf,"%d%s",opCode, data);
+      break;
+  }
+  //we don't have to return anything because buf is passed in as pointer
+  return;
 }
 
 //play is missing *********
