@@ -421,6 +421,7 @@ int ParseInputHit(char* input)
         printf("Sorry hit was not in range. Try again\n");
         return (-1);
       }
+      break;
     }
     index++;
   }
