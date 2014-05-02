@@ -376,6 +376,7 @@ void makePacket(char* buf, int opCode, int position, char* data){
       //don't overthink it it's just convenience of types
       sprintf(buf,"%d%d\n",opCode,position);
       break;
+    case WIN:
     case TURN:
       //using position to represent turn value - 0 or 1
       if(position != 1 && position !=0){
@@ -396,6 +397,7 @@ void play(int player1, int player2)
 {
 
   int p1deaths = 0, p2deaths = 0, current = -1, waiting = -1, holder = -1;
+  int readBytes = 0, position, opCcheck;
   char buf[MAX_BUFF_LEN];
   //send p1 turn packet, it's their turn
   makePacket(buf,TURN,1, "");
@@ -411,11 +413,51 @@ void play(int player1, int player2)
   //start loop - while p1deaths and p2deaths are less than DEATH
   while(p1deaths < DEATH && p2deaths < DEATH){
     //wait for currentplayer's hit
-      //check for the opposing player's boat array
+    memset(buf,0, MAX_BUFF_LEN);
+    readBytes = read(current, buf, MAX_BUFF_LEN);
+    if(readBytes > 0){
+    //check for correct opcode
+      opCcheck = strncmp(buf,"1",1);
+      if(opCcheck == 0){
+        //get position
+        position = atoi(buf + 1);
+        //check for the opposing player's boat array
+        char check;
+        if(current == player1){
+          check = player2Board[position];
+        }else{
+          check = player1Board[position];
+        }
+
+        if(check == '0'){
         //if 0 send both players a gamedata miss
+          makePacket(buf,GAME_DATA,0,"");
+        }else if(check == 'b'){
         //if b send both players a gamedata hit and ++ opposing player's death
-          //switch players
-        //else error, exit, send errors to players
+          if(current == player1){
+            p2deaths++;
+          }else{
+            p1deaths++;
+          }
+          makePacket(buf, GAME_DATA,1,"");
+        }else{
+        //else send errors to players
+          makePacket(buf, ERROR,0,"error: reading board");
+        }
+        write(player1,buf,strlen(buf));
+        write(player2,buf,strlen(buf));
+        //switch packets
+        holder = current;
+        current = waiting;
+        waiting = current;
+      }else{
+          //received wrong type of packet... send error to current
+        makePacket(buf, ERROR, 0, "error: unexpected opcode (packet type)");
+        write(current, buf, strlen(buf));
+          // no switching
+      }
+    }
+    sleep(5);    
   }
   //send win lose messages
 }
