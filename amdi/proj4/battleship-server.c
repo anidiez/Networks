@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
     if(players[playerNum] != -1) 
     {
       printf("someone tried to connect\n");
+      fflush(stdout);
       if(player1 < 0 && player2 < 0) 
       {
         time(&timer1);
@@ -78,6 +79,7 @@ int main(int argc, char *argv[]) {
        }
 
         printf("player1 is here.\n");
+        fflush(stdout);
       } 
       else 
       {
@@ -92,6 +94,7 @@ int main(int argc, char *argv[]) {
         }
 
        printf("player2 is here. Let the games begin!\n");
+       fflush(stdout);
       }
     }
 
@@ -103,6 +106,7 @@ int main(int argc, char *argv[]) {
       if(fork() == 0) 
       {
         printf("Setting up the game\n");
+        fflush(stdout);
         setupGame(player1, player2);
         play(player1,player2);
         shutdown(player1, SHUT_RDWR);
@@ -234,6 +238,7 @@ int ParseShipData(char *input, int playerNum)
   else 
   {
     printf("What kind of playerNum is that?");
+    fflush(stdout);
     return (-1);
   }
 
@@ -244,7 +249,7 @@ void setupGame(int player1, int player2) {
   char p1buf[MAX_BUFF_LEN];
   char p2buf[MAX_BUFF_LEN];
   char buf[MAX_BUFF_LEN];
-  int numRead = -1, opCode, index, temp;
+  int numRead = -1, opCode, index, temp, placed = 0;
 
   //Set both char arrays to '0'
   for(index = 0; index < GAMEBOARD; index++) {
@@ -256,7 +261,7 @@ void setupGame(int player1, int player2) {
   write(player1,"Hello player 1\n", 15);
   write(player2,"Hello player 2\n", 16);
 
-  while (true) 
+  while (placed < 10) 
   {
     #ifdef debug
     printf("loop time getting boats");
@@ -272,6 +277,7 @@ void setupGame(int player1, int player2) {
         //save ship
         temp = ParseShipData(p1buf, 1);
         if(temp	 != -1){
+          placed++;
           makePacket(buf, ACK, opCode, "");
         }else{
           makePacket(buf, ERROR, 0,"error: cannot parse ship data");
@@ -281,6 +287,7 @@ void setupGame(int player1, int player2) {
       }else if(opCode == ERROR){
         //print error message
         printf("%s\n",p1buf + 1);
+        fflush(stdout);
         //exit -- let other client know of error
         makePacket(buf, ERROR,0, "error: opposing player error");
         write(player2, buf, strlen(buf));
@@ -302,6 +309,7 @@ void setupGame(int player1, int player2) {
         //save ship
       temp = ParseShipData(p2buf, 2);
         if(temp != -1){
+          placed++;
           makePacket(buf, ACK, opCode, "");
         }else{
           makePacket(buf, ERROR, 0,"error: cannot parse ship data");
@@ -311,13 +319,14 @@ void setupGame(int player1, int player2) {
       }else if(opCode == ERROR){
         //print error message
         printf("%s\n",p2buf + 1);
+        fflush(stdout);
         //exit -- let other client know of error
         makePacket(buf, ERROR,0, "error: opposing player error");
         write(player1, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
       }else{
-        //send error
+        //send error************************
       }
       numRead = -1;
     } 
@@ -325,7 +334,9 @@ void setupGame(int player1, int player2) {
     //small pause
     sleep(1);
   }   
-
+  printf("made it out of setup loopi\n");
+        fflush(stdout);
+  return;
 }
 
 int getOpcode(char* packet){
@@ -370,14 +381,17 @@ void makePacket(char* buf, int opCode, int position, char* data){
       //we're using data to pass in the hit or miss... 
       if(data[0] != '0' && data[0] != '1'){
         sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
+        fflush(stdout);
         return;
       }
       sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
+        fflush(stdout);
       break;
     case ACK:
       //here we're just using position as the opcode we're confirming we got
       //don't overthink it it's just convenience of types
       sprintf(buf,"%d%d\n",opCode,position);
+        fflush(stdout);
       break;
     case WIN:
     case TURN:
@@ -386,9 +400,11 @@ void makePacket(char* buf, int opCode, int position, char* data){
         return;
       }
       sprintf(buf, "%d%d\n",opCode,position);
+        fflush(stdout);
       break;
     case ERROR:
       sprintf(buf,"%d%s\n",opCode, data);
+        fflush(stdout);
       break;
   }
   //we don't have to return anything because buf is passed in as pointer
@@ -402,11 +418,18 @@ void play(int player1, int player2)
   int p1deaths = 0, p2deaths = 0, current = -1, waiting = -1, holder = -1;
   int readBytes = 0, position, opCcheck;
   char buf[MAX_BUFF_LEN];
+
+printf("made it into play\n");
+        fflush(stdout);
   //send p1 turn packet, it's their turn
   makePacket(buf,TURN,1, "");
+printf("sent this to p1%s\n",buf);
+        fflush(stdout);
   write(player1,buf,strlen(buf));
   //send p2 turn packet, it's not their turn
   makePacket(buf,TURN,0, "");
+printf("sent this to p2,%s\n",buf);
+        fflush(stdout);
   write(player2,buf,strlen(buf));
 
   //set current player to p1
@@ -419,6 +442,8 @@ void play(int player1, int player2)
     memset(buf,0, MAX_BUFF_LEN);
     readBytes = read(current, buf, MAX_BUFF_LEN);
     if(readBytes > 0){
+printf("we got a reading from player in play\n");
+fflush(stdout);
     //check for correct opcode
       opCcheck = strncmp(buf,"1",1);
       if(opCcheck == 0){
@@ -446,6 +471,9 @@ void play(int player1, int player2)
         }else{
         //else send errors to players
           makePacket(buf, ERROR,0,"error: reading board");
+          printf("something went wrong setting up the board");
+          fflush(stdout);
+          exit(EXIT_FAILURE);
         }
         write(player1,buf,strlen(buf));
         write(player2,buf,strlen(buf));

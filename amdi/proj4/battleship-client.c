@@ -12,7 +12,7 @@ int   ParseInputHit(char* input);
 int   ParseHitPacket(char*,int);
 int   ParseTurnPacket (char *packet);
 char* getUserInput();
-void  displayBoard();
+void  displayBoard(int);
 int   CheckBounds(int location, int length, int oriented);
 int   CheckCollision(int location, int length, int oriented);
 void  play(int);
@@ -132,6 +132,34 @@ char* getUserInput()
   #ifdef debug
   printf("The input is %s\n", input);
   #endif
+  return input;
+}
+
+//Automated inputs
+char* getNextInput(int index) 
+{
+  int max = 20;
+  char* input = (char*)malloc(max); // allocate buffer
+ 
+  switch (index) {
+    case 0:
+      strcpy(input,"a,a0,r");
+      break;
+    case 1:
+      strcpy(input,"b,a1,r");
+      break;      
+    case 2:
+      strcpy(input,"c,a2,r");
+      break;
+    case 3:
+      strcpy(input,"p,a3,r");
+      break;
+    case 4:
+      strcpy(input,"s,a4,r");
+      break;
+    default:
+      printf("Shouldn't get here.\n");
+  }
   return input;
 }
 
@@ -368,13 +396,13 @@ int ParseInputHit(char* input)
     if (index == 0)
     { 
       #ifdef debug
-      printf("before c %c index = %d loc = %d\n",c,index,location);
+      printf("before c %c index = %d\n",c,index);
       #endif
 
       c = toupper(c);
       hit = c - 'A';
       #ifdef debug
-      printf("after upper c %c index = %d loc = %d\n",c,index,location);
+      printf("after upper c %c index = %d hit = %d\n",c,index,hit);
       #endif
       i++;
 
@@ -385,7 +413,7 @@ int ParseInputHit(char* input)
       hit += 10*((int)((char)c-'0'));
 
       #ifdef debug
-      printf("final loc c %c index = %d loc = %d\n",c,index,location);
+      printf("final loc c %c index = %d hit = %d\n",c,index,hit);
       #endif
 
       //Check if hit is in range
@@ -650,11 +678,13 @@ int ParseInputSetup(int sockfd, char* input)
 }
 
 
+
+
 //return success or fail
 int setupGame(int sockfd) 
 {
   char buffer[MAX_BUFF_LEN]; 
-  int index = 0, readStatus = 0, placed = 0, hit = -1;
+  int index = 0, readStatus = 0, placed = 0, hit = -1,automated = 0;
   char *input;
 
   //Initialize the game board
@@ -702,7 +732,16 @@ int setupGame(int sockfd)
     //displayBoard 0 displays ship placements
     displayBoard(0);
 
-    input = getUserInput();
+    #ifdef debug
+    //Automate inputs
+    input = getNextInput(automated);
+    automated++;
+    sleep(1);
+    #endif
+    //********************************************
+    //input = getUserInput();
+
+
     #ifdef debug
     printf("Did I survive getting input?\n");
     printf("And the input is %s\n",input);
@@ -745,9 +784,18 @@ int ParseTurnPacket (char *packet)
 {
   int i =0;
 
-  if ((packet[0] - '0') == TURN)
+  #ifdef debug
+  printf("packet at 0%d minus char%d\n",packet[0],(packet[0] - '0'));
+  printf("turn %d\n",TURN);
+  fflush(stdout);
+  #endif
+
+  if ((packet[0]-'0') == TURN)
   {
-    return((int)packet[1]);
+    #ifdef debug
+    printf("packet[1] = %d\n",(int)(packet[1]-'0'));
+    #endif
+    return((int)(packet[1]-'0'));
   } 
   else
   {
@@ -777,6 +825,7 @@ int whoseTurn (int sockfd) {
 
   #ifdef debug
   printf("Did I make it past read?\n");
+  printf("turn = %d\n",turn);
   fflush(stdout);
   #endif
 
@@ -789,6 +838,7 @@ int whoseTurn (int sockfd) {
   }
 
   //Player 2 waiting
+ // while(true) {
     readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
     if (readStatus > 0) 
     {
@@ -796,6 +846,7 @@ int whoseTurn (int sockfd) {
       //Parse the input from the server
       hitted = ParseHitPacket(buffer,0);
     }
+ // }
  
 }
 
@@ -822,11 +873,11 @@ int UpdateArray(int location, int hitMiss, int type)
   {
     if(hitMiss == 1)
     {
-      hitsArray[location] = '!';
+      hitsArray[location] = 2;
     } 
     else 
     {
-      hitsArray[location] = 'X';
+      hitsArray[location] = 1;
     }
   }
   else
@@ -868,7 +919,7 @@ int ParseHitPacket(char *input, int type)
     {
       OpCode = (char)c - '0';
       #ifdef debug
-      printf("what is c %c index = %d ship = %d\n",c,index, ship);
+      printf("what is c %c index = %d opcode = %d\n",c,index, OpCode);
       #endif
 
     }
@@ -939,8 +990,11 @@ void play(int sockfd) {
     displayBoard(1);
 
     input = getUserInput();
+     
+    
 
     #ifdef debug
+    sleep(2);
     printf("Did I survive getting input?\n");
     printf("And the input is %s\n",input);
     fflush(stdout);
