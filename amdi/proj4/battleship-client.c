@@ -163,6 +163,35 @@ char* getNextInput(int index)
   return input;
 }
 
+//Automated inputs
+char* getNextInputPlay(int index) 
+{
+  int max = 20;
+  char* input = (char*)malloc(max); // allocate buffer
+ 
+  switch (index) {
+    case 0:
+      strcpy(input,"a0");
+      break;
+    case 1:
+      strcpy(input,"b0");
+      break;      
+    case 2:
+      strcpy(input,"c0");
+      break;
+    case 3:
+      strcpy(input,"d0");
+      break;
+    case 4:
+      strcpy(input,"e0");
+      break;
+    default:
+      printf("Shouldn't get here.\n");
+  }
+  return input;
+}
+
+
 //If type = 0 it'll display shipArray if type = 1 it'll display hits
 void displayBoard(int type)
 {
@@ -938,7 +967,7 @@ int ParseHitPacket(char *input, int type)
       printf("before c %c index = %d loc = %d\n",c,index,location);
       #endif
 
-      location = (int)((char)c - '0');
+      location = 10*((int)((char)c-'0'));
 
       #ifdef debug
       printf("after upper c %c index = %d loc = %d\n",c,index,location);
@@ -949,7 +978,7 @@ int ParseHitPacket(char *input, int type)
     //sets location vertically and adds them
     if (index == 2)
     {
-      location += 10*((int)((char)c-'0'));
+      location +=(int)((char)c - '0');
 
       #ifdef debug
       printf("final loc c %c index = %d loc = %d\n",c,index,location);
@@ -987,7 +1016,7 @@ location > 100)
 
 //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING 
 void play(int sockfd) {
-  int readStatus = -1, status = ERROR, hit = -1, index = 0;
+  int readStatus = -1, status = ERROR, hit = -1, index = 0,automated = 0;
   char buffer[MAX_BUFF_LEN],string[20];
   char *input;
 
@@ -1004,6 +1033,12 @@ void play(int sockfd) {
     printf("Enter a location: \n");
 
 
+    //input = getNextInputPlay(automated);
+    //automated++;
+    //sleep(1);
+
+
+    //****************************************
     input = getUserInput();
      
     
