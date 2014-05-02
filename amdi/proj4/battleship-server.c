@@ -438,16 +438,21 @@ printf("sent this to p2,%s\n",buf);
   //start loop - while p1deaths and p2deaths are less than DEATH
   while(p1deaths < DEATH && p2deaths < DEATH){
 printf("we're looping in play\n");
+printf("p1d %d p2d %d",p1deaths,p2deaths);
 fflush(stdout);
     //wait for currentplayer's hit
     memset(buf,0, MAX_BUFF_LEN);
     readBytes = read(current, buf, MAX_BUFF_LEN);
+#ifdef debug
 printf("we read %d\n",readBytes);
 fflush(stdout);
+#endif
     if(readBytes > 0){
+#ifdef debug
 printf("we got a reading from player in play\n");
 printf("we go %s\n",buf);
 fflush(stdout);
+#endif
     //check for correct opcode
       opCcheck = strncmp(buf,"1",1);
       if(opCcheck == 0){
@@ -460,8 +465,11 @@ fflush(stdout);
         }else{
           check = player1Board[position];
         }
+#ifdef debug
 printf("the position has %c\n",check);
+printf("the position is%d\n",position);
 fflush(stdout);
+#endif
         if(check == '0'){
         //if 0 send both players a gamedata miss
           makePacket(buf,GAME_DATA,position,"0");
