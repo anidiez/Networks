@@ -399,8 +399,8 @@ int ParseInputHit(char* input)
       printf("before c %c index = %d\n",c,index);
       #endif
 
-      c = toupper(c);
-      hit = c - 'A';
+      c = toupper((char)c);
+      hit = (int)((char)c - 'A');
       #ifdef debug
       printf("after upper c %c index = %d hit = %d\n",c,index,hit);
       #endif
@@ -859,6 +859,11 @@ int UpdateArray(int location, int hitMiss, int type)
 {
   int c;
 
+  #ifdef debug
+  printf("In updating array\n");
+  printf("loc = %d hit = %d type =%d \n",location,hitMiss,type);
+  #endif
+
   if (type == 0)
   {
     //Simple approach shipArray[location] = 'X';
@@ -933,7 +938,7 @@ int ParseHitPacket(char *input, int type)
       printf("before c %c index = %d loc = %d\n",c,index,location);
       #endif
 
-      location = (char)c - '0';
+      location = (int)((char)c - '0');
 
       #ifdef debug
       printf("after upper c %c index = %d loc = %d\n",c,index,location);
@@ -957,8 +962,9 @@ int ParseHitPacket(char *input, int type)
       hitMiss = (char)c -'0';
 
       #ifdef debug
-      printf("what is c %c index = %d ori = %c\n",c,index,hitMiss);
+      printf("what is c %c index = %d hit = %d\n",c,index,hitMiss);
       #endif
+      break;
     }
     index++;
 
