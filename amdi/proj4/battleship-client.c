@@ -745,9 +745,9 @@ int ParseTurnPacket (char *packet)
 {
   int i =0;
 
-  if (packet[0] == TURN)
+  if ((packet[0] - '0') == TURN)
   {
-    return(packet[1]);
+    return((int)packet[1]);
   } 
   else
   {
@@ -775,15 +775,20 @@ int whoseTurn (int sockfd) {
     turn = ParseTurnPacket(buffer);
   }
 
-  printf("Did I make it past read?");
+  #ifdef debug
+  printf("Did I make it past read?\n");
   fflush(stdout);
+  #endif
 
   if(turn == 1)
   {
+    #ifdef debug
+    printf("Am I returning?\n");
+    #endif
     return;
   }
 
-  while(true) {
+  //Player 2 waiting
     readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
     if (readStatus > 0) 
     {
@@ -791,7 +796,6 @@ int whoseTurn (int sockfd) {
       //Parse the input from the server
       hitted = ParseHitPacket(buffer,0);
     }
-  }
  
 }
 
@@ -827,10 +831,10 @@ int UpdateArray(int location, int hitMiss, int type)
   }
   else
   {
-    
-    
+    printf("Some error");
+    return(-1);
   }
-  return (-1);
+  return (1);
 }
 
 //Where type will specify which array to update
@@ -913,6 +917,7 @@ location > 100)
     return(-1);
   }
 
+  //Check return value of this ***********
   UpdateArray(location, hitMiss, type);
 
   return(1);
