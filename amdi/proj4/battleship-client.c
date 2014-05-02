@@ -9,7 +9,7 @@ int   convertPortToInt(int);
 int   setupGame(int);
 int   ParseInputSetup(int,char* input);
 int   ParseInputHit(char* input);
-int   ParseHitPacket(buffer)
+int   ParseHitPacket(buffer);
 int   ParseTurnPacket (char *packet);
 char* getUserInput();
 void  displayBoard();

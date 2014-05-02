@@ -460,4 +460,20 @@ void play(int player1, int player2)
     sleep(5);    
   }
   //send win lose messages
+  if(p1deaths == DEATH){
+    //player 1 died first
+    makePacket(buf, WIN, 0, "");
+    write(player1,buf,strlen(buf));
+    makePacket(buf,WIN, 1, "");
+    write(player2,buf,strlen(buf));
+  }else if(p2deaths == DEATH){
+    //player 2 died first
+    makePacket(buf, WIN, 0, "");
+    write(player2,buf,strlen(buf));
+    makePacket(buf,WIN, 1, "");
+    write(player1,buf,strlen(buf));
+  }else{
+    //wat
+    
+  }
 }
