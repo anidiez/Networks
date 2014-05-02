@@ -4,21 +4,23 @@
 #include "battleship.h"
 
 //Declare the functions
-int powerN(int, int, int);
-int convertPortToInt(int);
-int setupGame(int);
-int ParseInputSetup(int,char* input);
-int ParseInputHit(char* input);
+int   powerN(int, int, int);
+int   convertPortToInt(int);
+int   setupGame(int);
+int   ParseInputSetup(int,char* input);
+int   ParseInputHit(char* input);
+int   ParseHitPacket(buffer)
+int   ParseTurnPacket (char *packet);
 char* getUserInput();
-void displayBoard();
-int CheckBounds(int location, int length, int oriented);
-int CheckCollision(int location, int length, int oriented);
-void play(int);
+void  displayBoard();
+int   CheckBounds(int location, int length, int oriented);
+int   CheckCollision(int location, int length, int oriented);
+void  play(int);
 
 //Globals
 char shipArray[GAMEBOARD];
-int hitsArray[GAMEBOARD];
-int ships[5];
+int  hitsArray[GAMEBOARD];
+int  ships[5];
 
 
 
@@ -127,7 +129,9 @@ char* getUserInput()
     i++;
   }
 
+  #ifdef debug
   printf("The input is %s\n", input);
+  #endif
   return input;
 }
 
@@ -691,7 +695,7 @@ int setupGame(int sockfd)
     //Can't send null terminator over internet?
     memset(buffer,0,MAX_BUFF_LEN);
 
-    printf("Boats are A, B, C, S, P\n");
+    printf("\nBoats are A, B, C, S, P\n");
     printf("Select boat, location, and orientation(down or right)\n");
     printf("Example: \"B, C5, down\"\n");
     fflush(stdout);
@@ -732,28 +736,69 @@ int setupGame(int sockfd)
     free(input); // release memory allocated for user
    
   }
+  //#ifdef debug
+  printf("Finished setting up\n");
+ // #endif
+}
+
+int ParseTurnPacket (char *packet) 
+{
+  int i =0;
+
+  if (packet[0] == TURN)
+  {
+    return(packet[1]);
+  } 
+  else
+  {
+    printf("What kind of packet did I get?\n");
+    return(-1);
+  }
+  
 }
 
 //Before going into game loop wait for ack from server to say its your turn
 //if its your turn go into game loop (return 1) 
 //else wait for info packet about other users hits
 int whoseTurn (int sockfd) {
-  int readStatus;
+  int readStatus, turn = -1, hitted = -1;
   char buffer[MAX_BUFF_LEN]; 
  
+  printf("Waiting for my turn");
+  fflush(stdout);
+
   readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
   if (readStatus > 0) 
   {
     printf("And the server says: %s",buffer);
     //Parse the input from the server
-    
+    turn = ParseTurnPacket(buffer);
   }
-  //Lets stop here and then go step by step for now**********************
+
+  printf("Did I make it past read?");
+  fflush(stdout);
+
+  if(turn == 1)
+  {
+    return;
+  }
+
   while(true) {
-    printf("Check if everything was set up correctly");
-    sleep(5);
+    readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
+    if (readStatus > 0) 
+    {
+      printf("And the server says: %s",buffer);
+      //Parse the input from the server
+      hitted = ParseHitPacket(buffer);
+    }
   }
  
+}
+
+int ParseHitPacket(buffer)
+{
+  
+  
 }
 
 //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING 

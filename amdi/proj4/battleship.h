@@ -28,15 +28,7 @@ GAME_DATA = 3,
 ACK = 4,
 ERROR = 5,
 } packet_type;
-/*
-typedef enum {
-AIRCARRIER,
-BATTLESHIP,
-CRUISER,
-SUBMARINE,
-PATROL,
-} boats;
-*/
+
 typedef enum {
 A = 0,
 B = 1,
