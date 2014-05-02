@@ -104,6 +104,11 @@ int main(int argc, char *argv[]) {
       {
         printf("Setting up the game\n");
         setupGame(player1, player2);
+        play(player1,player2);
+        shutdown(player1, SHUT_RDWR);
+        shutdown(player2, SHUT_RDWR);
+        close(player1);
+        close(player2);
         exit(EXIT_SUCCESS);
       } else {
         player1 = -1;
@@ -117,6 +122,8 @@ int main(int argc, char *argv[]) {
       playerNum = (playerNum+1) % MAX_PLAYERS;
     }
   }
+  sutdown(sockfd, SHUT_RDWR);
+  close(sockfd);
   exit(1);
 }
 
@@ -319,10 +326,6 @@ void setupGame(int player1, int player2) {
     sleep(1);
   }   
 
-  shutdown(player1, SHUT_RDWR);
-  shutdown(player2, SHUT_RDWR);
-  close(player1);
-  close(player2);
 }
 
 int getOpcode(char* packet){
@@ -460,4 +463,23 @@ void play(int player1, int player2)
     sleep(5);    
   }
   //send win lose messages
+  if(p1deaths == DEATH){
+    //player 1 died first
+    makePacket(buf, WIN, 0, "");
+    write(player1,buf,strlen(buf));
+    makePacket(buf,WIN, 1, "");
+    write(player2,buf,strlen(buf));
+  }else if(p2deaths == DEATH){
+    //player 2 died first
+    makePacket(buf, WIN, 0, "");
+    write(player2,buf,strlen(buf));
+    makePacket(buf,WIN, 1, "");
+    write(player1,buf,strlen(buf));
+  }else{
+    //wat
+    makePacket(buf, ERROR, 0, "error: unexpected server error");
+    write(player1,buf,strlen(buf));
+    write(player2,buf,strlen(buf));
+  }
+  return;
 }
