@@ -1037,9 +1037,9 @@ void play(int sockfd) {
 
         //Write hit to server ******************************************
         sprintf(string,"1%02d",hit);
-        index = write(sockfd,string,strlen(string))
+        index = write(sockfd,string,strlen(string));
         while (index < 0) {
-          index = write(sockfd,string,strlen(string))
+          index = write(sockfd,string,strlen(string));
         }
 
         #ifdef debug
