@@ -376,6 +376,13 @@ void makePacket(char* buf, int opCode, int position, char* data){
       //don't overthink it it's just convenience of types
       sprintf(buf,"%d%d\n",opCode,position);
       break;
+    case TURN:
+      //using position to represent turn value - 0 or 1
+      if(position != 1 && position !=0){
+        return;
+      }
+      sprintf(buf, "%d%d\n",opCode,position);
+      break;
     case ERROR:
       sprintf(buf,"%d%s\n",opCode, data);
       break;
@@ -387,6 +394,28 @@ void makePacket(char* buf, int opCode, int position, char* data){
 //play is missing *********
 void play(int player1, int player2)
 {
-  
 
+  int p1deaths = 0, p2deaths = 0, current = -1, waiting = -1, holder = -1;
+  char buf[MAX_BUFF_LEN];
+  //send p1 turn packet, it's their turn
+  makePacket(buf,TURN,1, "");
+  write(player1,buf,strlen(buf));
+  //send p2 turn packet, it's not their turn
+  makePacket(buf,TURN,0, "");
+  write(player2,buf,strlen(buf));
+
+  //set current player to p1
+  current = player1;
+  //set waiting player to p2
+  waiting = player2;
+  //start loop - while p1deaths and p2deaths are less than DEATH
+  while(p1deaths < DEATH && p2deaths < DEATH){
+    //wait for currentplayer's hit
+      //check for the opposing player's boat array
+        //if 0 send both players a gamedata miss
+        //if b send both players a gamedata hit and ++ opposing player's death
+          //switch players
+        //else error, exit, send errors to players
+  }
+  //send win lose messages
 }

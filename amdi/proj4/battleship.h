@@ -18,7 +18,7 @@
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
 #define MAX_BUFF_LEN 517
 #define GAMEBOARD 100
-
+#define DEATH 17
 #define MAX_PLAYERS 100
 
 typedef enum {
@@ -27,17 +27,10 @@ SHIP = 2,
 GAME_DATA = 3,
 ACK = 4,
 TURN = 5,
-ERROR = 6,
+WIN = 6,
+ERROR = 7,
 } packet_type;
-/*
-typedef enum {
-AIRCARRIER,
-BATTLESHIP,
-CRUISER,
-SUBMARINE,
-PATROL,
-} boats;
-*/
+
 typedef enum {
 A = 0,
 B = 1,
