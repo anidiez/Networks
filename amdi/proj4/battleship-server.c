@@ -265,9 +265,9 @@ void setupGame(int player1, int player2) {
         //save ship
         temp = ParseShipData(p1buf, 1);
         if(temp	 != -1){
-          makePacket(buf, 4, opCode, "");
+          makePacket(buf, ACK, opCode, "");
         }else{
-          makePacket(buf, 5, 0,"error: cannot parse ship data");
+          makePacket(buf, ERROR, 0,"error: cannot parse ship data");
         }
         write(player1,buf,strlen(buf));
         //return ack
@@ -275,7 +275,7 @@ void setupGame(int player1, int player2) {
         //print error message
         printf("%s\n",p1buf + 1);
         //exit -- let other client know of error
-        makePacket(buf, 5,0, "error: opposing player error");
+        makePacket(buf, ERROR,0, "error: opposing player error");
         write(player2, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
@@ -295,9 +295,9 @@ void setupGame(int player1, int player2) {
         //save ship
       temp = ParseShipData(p2buf, 2);
         if(temp != -1){
-          makePacket(buf, 4, opCode, "");
+          makePacket(buf, ACK, opCode, "");
         }else{
-          makePacket(buf, 5, 0,"error: cannot parse ship data");
+          makePacket(buf, ERROR, 0,"error: cannot parse ship data");
         }
         write(player2,buf,strlen(buf));
         //return ack
@@ -305,7 +305,7 @@ void setupGame(int player1, int player2) {
         //print error message
         printf("%s\n",p2buf + 1);
         //exit -- let other client know of error
-        makePacket(buf, 5,0, "error: opposing player error");
+        makePacket(buf, ERROR,0, "error: opposing player error");
         write(player1, buf, strlen(buf));
         exit(EXIT_SUCCESS);
         //maybe close socket
@@ -366,7 +366,7 @@ void makePacket(char* buf, int opCode, int position, char* data){
     case GAME_DATA:
       //we're using data to pass in the hit or miss... 
       if(data[0] != '0' && data[0] != '1'){
-        sprintf(buf, "5error: invalid hit or miss\n");
+        sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
         return;
       }
       sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
@@ -375,6 +375,13 @@ void makePacket(char* buf, int opCode, int position, char* data){
       //here we're just using position as the opcode we're confirming we got
       //don't overthink it it's just convenience of types
       sprintf(buf,"%d%d\n",opCode,position);
+      break;
+    case TURN:
+      //using position to represent turn value - 0 or 1
+      if(position != 1 && position !=0){
+        return;
+      }
+      sprintf(buf, "%d%d\n",opCode,position);
       break;
     case ERROR:
       sprintf(buf,"%d%s\n",opCode, data);
@@ -388,4 +395,27 @@ void makePacket(char* buf, int opCode, int position, char* data){
 void play(int player1, int player2)
 {
 
+  int p1deaths = 0, p2deaths = 0, current = -1, waiting = -1, holder = -1;
+  char buf[MAX_BUFF_LEN];
+  //send p1 turn packet, it's their turn
+  makePacket(buf,TURN,1, "");
+  write(player1,buf,strlen(buf));
+  //send p2 turn packet, it's not their turn
+  makePacket(buf,TURN,0, "");
+  write(player2,buf,strlen(buf));
+
+  //set current player to p1
+  current = player1;
+  //set waiting player to p2
+  waiting = player2;
+  //start loop - while p1deaths and p2deaths are less than DEATH
+  while(p1deaths < DEATH && p2deaths < DEATH){
+    //wait for currentplayer's hit
+      //check for the opposing player's boat array
+        //if 0 send both players a gamedata miss
+        //if b send both players a gamedata hit and ++ opposing player's death
+          //switch players
+        //else error, exit, send errors to players
+  }
+  //send win lose messages
 }
