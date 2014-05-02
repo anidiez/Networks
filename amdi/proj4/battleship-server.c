@@ -385,7 +385,7 @@ printf("you didn't hit or miss wat/n");
         fflush(stdout);
         return;
       }
-      sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
+      sprintf(buf, "%d%02d;%c\n", opCode,position,data[0]);
       break;
     case ACK:
       //here we're just using position as the opcode we're confirming we got
@@ -440,6 +440,7 @@ printf("sent this to p2,%s\n",buf);
     readBytes = read(current, buf, MAX_BUFF_LEN);
     if(readBytes > 0){
 printf("we got a reading from player in play\n");
+printf("we go %s\n",buf);
 fflush(stdout);
     //check for correct opcode
       opCcheck = strncmp(buf,"1",1);
@@ -472,6 +473,8 @@ fflush(stdout);
           fflush(stdout);
           exit(EXIT_FAILURE);
         }
+printf("we're writing %s\n",buf);
+fflush(stdout);
         write(player1,buf,strlen(buf));
         write(player2,buf,strlen(buf));
         //switch packets
