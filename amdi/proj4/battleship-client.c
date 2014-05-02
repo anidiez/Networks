@@ -1038,8 +1038,10 @@ void play(int sockfd) {
         //Write hit to server ******************************************
         sprintf(string,"1%02d",hit);
         index = write(sockfd,string,strlen(string));
+        printf("before while write = %d\n",index);
+ 
         while (index < 0) {
-          printf("Can't seem to write don't know why\n");
+          printf("write = %d\n",index);
           index = write(sockfd,string,strlen(string));
         }
 
