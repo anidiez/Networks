@@ -437,6 +437,8 @@ printf("sent this to p2,%s\n",buf);
   waiting = player2;
   //start loop - while p1deaths and p2deaths are less than DEATH
   while(p1deaths < DEATH && p2deaths < DEATH){
+printf("we're looping in play\n");
+fflush(stdout);
     //wait for currentplayer's hit
     memset(buf,0, MAX_BUFF_LEN);
     readBytes = read(current, buf, MAX_BUFF_LEN);
@@ -491,8 +493,13 @@ fflush(stdout);
           // no switching
       }
     }
+
     sleep(5);    
   }
+
+printf("we're out of the loop now\n");
+fflush(stdout);
+
   //send win lose messages
   if(p1deaths == DEATH){
     //player 1 died first
