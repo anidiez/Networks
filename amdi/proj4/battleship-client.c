@@ -991,7 +991,7 @@ void play(int sockfd) {
     fflush(stdout);
 
     //display their past hits
-    printf("Your hits\n")
+    printf("Your hits\n");
     displayBoard(1);
 
     printf("Enter a location: \n");
