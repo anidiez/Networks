@@ -921,8 +921,8 @@ location > 100)
 
 //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING 
 void play(int sockfd) {
-  int readStatus = -1, status = 4, hit = -1;
-  char buffer[MAX_BUFF_LEN];
+  int readStatus = -1, status = ERROR, hit = -1;
+  char buffer[MAX_BUFF_LEN],string[20];
   char *input;
 
   while(true) 
@@ -952,11 +952,12 @@ void play(int sockfd) {
 
     if(hit > -1) 
     {
+      //For error checking we'll do it later****
       //while(status == error) {
 
         //Write hit to server ******************************************
-        //sprintf(string,"blah%d",hit);
-        //write(sockfd,string,strlen(string));
+        sprintf(string,"1%02d",hit);
+        write(sockfd,string,strlen(string));
 
         //Receives whether or not the hit was a hit or miss
         readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
@@ -964,7 +965,13 @@ void play(int sockfd) {
         {
           printf("And the server says: %s",buffer);
           //Parse hit for hit or miss
-          //status = ParsePacket()
+          status = ParseHitPacket(buffer,1);
+
+          //May not be a hit packet in which case status == -1
+          //Check for end game condition
+
+          //More error checking
+
           //if(status == error){
           // continue; which will resend the packet
           //}
@@ -980,18 +987,23 @@ void play(int sockfd) {
               //status = buffer[0];
               //buffer at whatever location contains hit/miss
               //0 for miss
-          //  if(buffer[1] == 0) {hitsArray[hit] = 1;}
-          //  if(buffer[1] == 1) {hitsArray[hit] = 2;}
           //}
         }
       
         //wait until you receive input from server about other user
-        //while(true) 
+        //while(status == -1) 
         //{
-        //  
+          readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
+          if (readStatus > 0) 
+          {
+            printf("And the server says: %s",buffer);
+            //Parse hit for hit or miss
+            status = ParseHitPacket(buffer,1);
+          }
+
         //}
         //Now display the board again to user
-        //displayBoard(0);
+        displayBoard(0);
       //}
     //reset hit
     hit = -1;
