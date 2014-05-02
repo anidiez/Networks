@@ -744,8 +744,10 @@ int setupGame(int sockfd)
 int ParseTurnPacket (char *packet) 
 {
   int i =0;
-
-  if (packet[0] == TURN)
+printf("packet at 0%d minus char%d\n",packet[0],(packet[0] - '0'));
+printf("turn %d\n",TURN);
+fflush(stdout);
+  if ((packet[0]-'0') == TURN)
   {
     return(packet[1]);
   } 
@@ -783,7 +785,7 @@ int whoseTurn (int sockfd) {
     return;
   }
 
-  while(true) {
+ // while(true) {
     readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
     if (readStatus > 0) 
     {
@@ -791,7 +793,7 @@ int whoseTurn (int sockfd) {
       //Parse the input from the server
       hitted = ParseHitPacket(buffer,0);
     }
-  }
+ // }
  
 }
 
