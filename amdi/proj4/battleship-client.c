@@ -1019,6 +1019,7 @@ void play(int sockfd) {
 
     #ifdef debug
     printf("Did I parse?\n");
+    printf("hit = %d",hit);
     fflush(stdout);
     #endif
 
@@ -1028,9 +1029,21 @@ void play(int sockfd) {
       //For error checking we'll do it later****
       //while(status == error) {
 
+      #ifdef debug
+      printf("writing to server\n");
+      fflush(stdout);
+      #endif
+
+
         //Write hit to server ******************************************
         sprintf(string,"1%02d",hit);
         write(sockfd,string,strlen(string));
+
+
+        #ifdef debug
+        printf("waiting to receive my hit/miss\n");
+        fflush(stdout);
+        #endif
 
         //Receives whether or not the hit was a hit or miss
         readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
@@ -1066,6 +1079,13 @@ void play(int sockfd) {
         //wait until you receive input from server about other user
         //while(status == -1) 
         //{
+
+        #ifdef debug
+        printf("waiting to receive opponent hit/miss\n");
+        fflush(stdout);
+        #endif
+
+
           readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
           if (readStatus > 0) 
           {
