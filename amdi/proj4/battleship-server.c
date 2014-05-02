@@ -446,6 +446,8 @@ void play(int player1, int player2)
         }else{
         //else send errors to players
           makePacket(buf, ERROR,0,"error: reading board");
+          printf("something went wrong setting up the board");
+          exit(EXIT_FAILURE);
         }
         write(player1,buf,strlen(buf));
         write(player2,buf,strlen(buf));
