@@ -18,7 +18,7 @@
 //MAXBUFLEN 4 bytes of header  + 512 bytes data + null terminate
 #define MAX_BUFF_LEN 517
 #define GAMEBOARD 100
-#define DEATH 2
+#define DEATH 17
 #define MAX_PLAYERS 100
 
 typedef enum {
