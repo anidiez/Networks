@@ -85,7 +85,9 @@ int convertPortToInt(int port) {
     index++;
     size--;
   }
+  #ifdef debug
   printf("port = %d\n",port);
+  #endif
   return(port);
 }
 
@@ -457,7 +459,7 @@ int ParseInputHit(char* input)
   //before returning hit check if already done
   if (hitsArray[hit] != 0)
   {
-    printf("All of there ships are anchored into place.\n");
+    printf("All of the ships are anchored into place.\n");
     printf("So there's no need to shoot the same spot twice.\n");
     return(-1);
   }
@@ -606,7 +608,9 @@ int ParseInputSetup(int sockfd, char* input)
 
   if(index < 3)
   {
+    #ifdef debug
     printf("index was less than three \n");
+    #endif
     return(-1);
   }
   if (orientation == 'd' || orientation == 'D')
@@ -740,7 +744,9 @@ int setupGame(int sockfd)
   readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
   if (readStatus > 0) 
   {
+    #ifdef debug
     printf("And the server says: %s",buffer);
+    #endif
   }
 
   printf("Place your ships     shipsize\n");
@@ -771,7 +777,9 @@ int setupGame(int sockfd)
     sleep(1);
     #endif
     //********************************************
-    //input = getUserInput();
+    #ifndef debug
+    input = getUserInput();
+    #endif
 
 
     #ifdef debug
@@ -795,7 +803,9 @@ int setupGame(int sockfd)
       readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
       if (readStatus > 0) 
       {
+        #ifdef debug
         printf("And the server says: %s",buffer);
+        #endif
       }
       
       placed++;
@@ -807,9 +817,9 @@ int setupGame(int sockfd)
     free(input); // release memory allocated for user
    
   }
-  //#ifdef debug
+  #ifdef debug
   printf("Finished setting up\n");
- // #endif
+  #endif
 }
 
 int ParseTurnPacket (char *packet) 
@@ -843,15 +853,17 @@ int ParseTurnPacket (char *packet)
 int whoseTurn (int sockfd) {
   int readStatus, turn = -1, hitted = -1;
   char buffer[MAX_BUFF_LEN]; 
- 
+  #ifdef debug
   printf("Waiting for my turn");
   fflush(stdout);
-
+  #endif
   readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
   if (readStatus > 0) 
   {
+    #ifdef debug
     printf("And the server says: %s",buffer);
     //Parse the input from the server
+    #endif
     turn = ParseTurnPacket(buffer);
   }
 
@@ -874,7 +886,23 @@ int whoseTurn (int sockfd) {
     readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
     if (readStatus > 0) 
     {
+      #ifdef debug
       printf("And the server says: %s",buffer);
+      #endif
+
+      //if packet is a win/lose message
+      int opC = -1;
+      opC = buffer[0] - '0';
+      if(opC == WIN){
+        int isItWin;
+        isItWin = buffer[1] - '0';
+        if(isItWin == 0){
+          printf("Sorry. You Lose.\n");
+        }else{
+          printf("You have bested your opponent\n");
+        }
+        sleep(15);
+      }
       //Parse the input from the server
       hitted = ParseHitPacket(buffer,0);
     }
@@ -1074,23 +1102,36 @@ void play(int sockfd) {
         //Write hit to server ******************************************
         sprintf(string,"1%02d",hit);
         index = write(sockfd,string,strlen(string));
-        printf("before while write = %d\n",index);
  
         while (index < 0) {
-          printf("write = %d\n",index);
           index = write(sockfd,string,strlen(string));
         }
 
-        #ifdef debug
-        printf("waiting to receive my hit/miss\n");
+        printf("waiting for my hit result\n");
         fflush(stdout);
-        #endif
 
         //Receives whether or not the hit was a hit or miss
         readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
         if (readStatus > 0) 
         {
+          #ifdef debug
           printf("And the server says: %s",buffer);
+          #endif
+ 
+          //if packet is a win/lose message
+          int opC = -1;
+          opC = buffer[0] - '0';
+          if(opC == WIN){
+            int isItWin;
+            isItWin = buffer[1] - '0';
+            if(isItWin == 0){
+              printf("Sorry. You Lose.\n");
+            }else{
+              printf("You have bested your opponent\n");
+            }
+            sleep(15);
+            break;
+          }
           //Parse hit for hit or miss
           status = ParseHitPacket(buffer,1);
 
@@ -1121,16 +1162,30 @@ void play(int sockfd) {
         //while(status == -1) 
         //{
 
-        #ifdef debug
         printf("waiting to receive opponent hit/miss\n");
         fflush(stdout);
-        #endif
 
 
           readStatus = read(sockfd, buffer, MAX_BUFF_LEN);
           if (readStatus > 0) 
           {
+            #ifdef debug
             printf("And the server says: %s",buffer);
+            #endif
+            //if packet is a win/lose message
+            int opC = -1;
+            opC = buffer[0] - '0';
+            if(opC == WIN){
+              int isItWin;
+              isItWin = buffer[1] - '0';
+              if(isItWin == 0){
+                printf("Sorry. You Lose.\n");
+              }else{
+                printf("You have bested your opponent\n");
+              }
+              sleep(15);
+              break;
+            }
             //Parse hit for hit or miss
             status = ParseHitPacket(buffer,0);
           }

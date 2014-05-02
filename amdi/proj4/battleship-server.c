@@ -53,19 +53,22 @@ int main(int argc, char *argv[]) {
   for(index = 0; index < MAX_PLAYERS; index++){
     players[index] = -1;
   }
-
+  #ifdef debug
   //Just so I can see what's happening.
   printf("waiting to accept a player...\n");
   //If you don't flush stdout it will wait until the server stuff has been
   //processed for some reason
   fflush(stdout);
+  #endif
 
   while(1) {
     players[playerNum] = accept(sockfd, (struct sockaddr*) &client_addr, &addr_len);
     if(players[playerNum] != -1) 
     {
+      #ifdef debug
       printf("someone tried to connect\n");
       fflush(stdout);
+      #endif
       if(player1 < 0 && player2 < 0) 
       {
         time(&timer1);
@@ -77,9 +80,10 @@ int main(int argc, char *argv[]) {
          printf("Error setting nonblocking");
          exit(EXIT_FAILURE);
        }
-
+        #ifdef debug
         printf("player1 is here.\n");
         fflush(stdout);
+        #endif
       } 
       else 
       {
@@ -92,9 +96,10 @@ int main(int argc, char *argv[]) {
           printf("Error setting nonblocking");
           exit(EXIT_FAILURE);
         }
-
+       #ifdef debug
        printf("player2 is here. Let the games begin!\n");
        fflush(stdout);
+       #endif
       }
     }
 
@@ -105,8 +110,11 @@ int main(int argc, char *argv[]) {
     {
       if(fork() == 0) 
       {
+        #ifdef debug
         printf("Setting up the game\n");
         fflush(stdout);
+        #endif
+
         setupGame(player1, player2);
         play(player1,player2);
         shutdown(player1, SHUT_RDWR);
@@ -270,8 +278,10 @@ void setupGame(int player1, int player2) {
 
     numRead = read(player1, p1buf, MAX_BUFF_LEN);
     if(numRead > 0){
+      #ifdef debug
       printf("%s\n",p1buf);
       fflush(stdout);
+      #endif
       opCode = getOpcode(p1buf);
       if(opCode == SHIP){
         //save ship
@@ -292,9 +302,10 @@ void setupGame(int player1, int player2) {
         makePacket(buf, ERROR,0, "error: opposing player error");
         write(player2, buf, strlen(buf));
         exit(EXIT_SUCCESS);
-        //maybe close socket
       }else{
         //send error
+        makePacket(buf,ERROR,0, "error:unexpected packet type");
+        write(player1,buf,strlen(buf));
       }
       numRead = -1;
     }
@@ -302,8 +313,10 @@ void setupGame(int player1, int player2) {
     //player2 stuff
     numRead = read(player2, p2buf, MAX_BUFF_LEN);
     if(numRead > 0){
+      #ifdef debug
       printf("%s\n",p2buf);
       fflush(stdout);
+      #endif
       opCode = getOpcode(p2buf);
       if(opCode == SHIP){
         //save ship
@@ -324,18 +337,21 @@ void setupGame(int player1, int player2) {
         makePacket(buf, ERROR,0, "error: opposing player error");
         write(player1, buf, strlen(buf));
         exit(EXIT_SUCCESS);
-        //maybe close socket
       }else{
-        //send error************************
+        //send error
+        makePacket(buf,ERROR,0, "error:unexpected packet type");
+        write(player2,buf,strlen(buf));
       }
       numRead = -1;
     } 
 
     //small pause
     sleep(1);
-  }   
+  }
+  #ifdef debug   
   printf("made it out of setup loopi\n");
-        fflush(stdout);
+  fflush(stdout);
+  #endif
   return;
 }
 
@@ -380,13 +396,18 @@ void makePacket(char* buf, int opCode, int position, char* data){
     case GAME_DATA:
       //we're using data to pass in the hit or miss... 
       if(data[0] != '0' && data[0] != '1'){
-printf("you didn't hit or miss wat/n");
-        sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
+        #ifdef debug
+        printf("you didn't hit or miss wat/n");
         fflush(stdout);
+        #endif
+
+        sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
         return;
       }
+      #ifdef debug
       printf("gamedata buf at make is %s\n",buf);
-fflush(stdout);
+      fflush(stdout);
+      #endif
       sprintf(buf, "%d%02d;%c\n", opCode,position,data[0]);
       break;
     case ACK:
@@ -417,18 +438,23 @@ void play(int player1, int player2)
   int p1deaths = 0, p2deaths = 0, current = -1, waiting = -1, holder = -1;
   int readBytes = 0, position, opCcheck;
   char buf[MAX_BUFF_LEN];
-
-printf("made it into play\n");
-        fflush(stdout);
+  #ifdef debug
+  printf("made it into play\n");
+  fflush(stdout);
+  #endif
   //send p1 turn packet, it's their turn
   makePacket(buf,TURN,1, "");
-printf("sent this to p1%s\n",buf);
-        fflush(stdout);
+  #ifdef debug
+  printf("sent this to p1%s\n",buf);
+  fflush(stdout);
+  #endif
   write(player1,buf,strlen(buf));
   //send p2 turn packet, it's not their turn
   makePacket(buf,TURN,0, "");
-printf("sent this to p2,%s\n",buf);
-        fflush(stdout);
+  #ifdef debug
+  printf("sent this to p2,%s\n",buf);
+  fflush(stdout);
+  #endif
   write(player2,buf,strlen(buf));
 
   //set current player to p1
@@ -437,22 +463,24 @@ printf("sent this to p2,%s\n",buf);
   waiting = player2;
   //start loop - while p1deaths and p2deaths are less than DEATH
   while(p1deaths < DEATH && p2deaths < DEATH){
-printf("we're looping in play\n");
-printf("p1d %d p2d %d",p1deaths,p2deaths);
-fflush(stdout);
+  #ifdef debug
+  printf("we're looping in play\n");
+  printf("p1d %d p2d %d",p1deaths,p2deaths);
+  fflush(stdout);
+  #endif
     //wait for currentplayer's hit
     memset(buf,0, MAX_BUFF_LEN);
     readBytes = read(current, buf, MAX_BUFF_LEN);
-#ifdef debug
-printf("we read %d\n",readBytes);
-fflush(stdout);
-#endif
+    #ifdef debug
+    printf("we read %d\n",readBytes);
+    fflush(stdout);
+    #endif
     if(readBytes > 0){
-#ifdef debug
-printf("we got a reading from player in play\n");
-printf("we go %s\n",buf);
-fflush(stdout);
-#endif
+      #ifdef debug
+      printf("we got a reading from player in play\n");
+      printf("we go %s\n",buf);
+      fflush(stdout);
+      #endif
     //check for correct opcode
       opCcheck = strncmp(buf,"1",1);
       if(opCcheck == 0){
@@ -465,11 +493,11 @@ fflush(stdout);
         }else{
           check = player1Board[position];
         }
-#ifdef debug
-printf("the position has %c\n",check);
-printf("the position is%d\n",position);
-fflush(stdout);
-#endif
+        #ifdef debug
+        printf("the position has %c\n",check);
+        printf("the position is%d\n",position);
+        fflush(stdout);
+        #endif
         if(check == '0'){
         //if 0 send both players a gamedata miss
           makePacket(buf,GAME_DATA,position,"0");
@@ -488,8 +516,10 @@ fflush(stdout);
           fflush(stdout);
           exit(EXIT_FAILURE);
         }
-printf("we're writing %s\n",buf);
-fflush(stdout);
+        #ifdef debug
+        printf("we're writing %s\n",buf);
+        fflush(stdout);
+        #endif
         write(player1,buf,strlen(buf));
         write(player2,buf,strlen(buf));
         //switch packets
@@ -506,9 +536,10 @@ fflush(stdout);
 
     sleep(5);    
   }
-
-printf("we're out of the loop now\n");
-fflush(stdout);
+  #ifdef debug
+  printf("we're out of the loop now\n");
+  fflush(stdout);
+  #endif
 
   //send win lose messages
   if(p1deaths == DEATH){
