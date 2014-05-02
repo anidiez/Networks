@@ -1132,7 +1132,7 @@ void play(int sockfd) {
           {
             printf("And the server says: %s",buffer);
             //Parse hit for hit or miss
-            status = ParseHitPacket(buffer,1);
+            status = ParseHitPacket(buffer,0);
           }
 
         //}
