@@ -1039,6 +1039,7 @@ void play(int sockfd) {
         sprintf(string,"1%02d",hit);
         index = write(sockfd,string,strlen(string));
         while (index < 0) {
+          printf("Can't seem to write don't know why\n");
           index = write(sockfd,string,strlen(string));
         }
 
