@@ -442,6 +442,8 @@ fflush(stdout);
     //wait for currentplayer's hit
     memset(buf,0, MAX_BUFF_LEN);
     readBytes = read(current, buf, MAX_BUFF_LEN);
+printf("we read %d\n",readBytes);
+fflush(stdout);
     if(readBytes > 0){
 printf("we got a reading from player in play\n");
 printf("we go %s\n",buf);
