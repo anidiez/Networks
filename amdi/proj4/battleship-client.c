@@ -929,7 +929,7 @@ int ParseHitPacket(char *input, int type)
       #ifdef debug
       printf("what is c %c index = %d opcode = %d\n",c,index, OpCode);
       #endif
-
+      i++;
     }
     //sets location horizontally
     if (index == 1)
@@ -954,6 +954,7 @@ int ParseHitPacket(char *input, int type)
       #ifdef debug
       printf("final loc c %c index = %d loc = %d\n",c,index,location);
       #endif
+      i++;
 
     }
     //sets orientation
