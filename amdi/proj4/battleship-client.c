@@ -986,7 +986,7 @@ location > 100)
 
 //The Game loop !!!! Woooo!! It's sooooo much FUN! LET'S NEVER STOP PLAYING 
 void play(int sockfd) {
-  int readStatus = -1, status = ERROR, hit = -1;
+  int readStatus = -1, status = ERROR, hit = -1, index = 0;
   char buffer[MAX_BUFF_LEN],string[20];
   char *input;
 
@@ -1037,8 +1037,10 @@ void play(int sockfd) {
 
         //Write hit to server ******************************************
         sprintf(string,"1%02d",hit);
-        write(sockfd,string,strlen(string));
-
+        index = write(sockfd,string,strlen(string))
+        while (index < 0) {
+          index = write(sockfd,string,strlen(string))
+        }
 
         #ifdef debug
         printf("waiting to receive my hit/miss\n");
