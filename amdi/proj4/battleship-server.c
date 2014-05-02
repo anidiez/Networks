@@ -487,7 +487,7 @@ fflush(stdout);
         //switch packets
         holder = current;
         current = waiting;
-        waiting = current;
+        waiting = holder;
       }else{
           //received wrong type of packet... send error to current
         makePacket(buf, ERROR, 0, "error: unexpected opcode (packet type)");
