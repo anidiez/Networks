@@ -97,7 +97,7 @@ char* getUserInput()
   char* input = (char*)malloc(max); // allocate buffer
   if (input == 0) {exit(0);}
 
-  printf("Enter boat and orientation: \n>");
+  printf(">");
 
   while (true) // skip leading whitespace
   {
@@ -733,6 +733,8 @@ int setupGame(int sockfd)
     //displayBoard 0 displays ship placements
     displayBoard(0);
 
+    printf("Enter boat and orientation: \n");
+
     #ifdef debug
     //Automate inputs
     input = getNextInput(automated);
@@ -987,8 +989,13 @@ void play(int sockfd) {
     printf("Select location to launch an Anti-Ship missile\n");
     printf("Example: \"C5\"\n");
     fflush(stdout);
+
     //display their past hits
+    printf("Your hits\n");
     displayBoard(1);
+
+    printf("Enter a location: \n");
+
 
     input = getUserInput();
      
@@ -1063,6 +1070,7 @@ void play(int sockfd) {
 
         //}
         //Now display the board again to user
+        printf("Your Board\n");
         displayBoard(0);
       //}
     //reset hit
