@@ -380,18 +380,17 @@ void makePacket(char* buf, int opCode, int position, char* data){
     case GAME_DATA:
       //we're using data to pass in the hit or miss... 
       if(data[0] != '0' && data[0] != '1'){
+printf("you didn't hit or miss wat/n");
         sprintf(buf, "%derror: invalid hit or miss\n",ERROR);
         fflush(stdout);
         return;
       }
       sprintf(buf, "%d%d;%c\n", opCode,position,data[0]);
-        fflush(stdout);
       break;
     case ACK:
       //here we're just using position as the opcode we're confirming we got
       //don't overthink it it's just convenience of types
       sprintf(buf,"%d%d\n",opCode,position);
-        fflush(stdout);
       break;
     case WIN:
     case TURN:
@@ -400,11 +399,9 @@ void makePacket(char* buf, int opCode, int position, char* data){
         return;
       }
       sprintf(buf, "%d%d\n",opCode,position);
-        fflush(stdout);
       break;
     case ERROR:
       sprintf(buf,"%d%s\n",opCode, data);
-        fflush(stdout);
       break;
   }
   //we don't have to return anything because buf is passed in as pointer
@@ -459,7 +456,7 @@ fflush(stdout);
 
         if(check == '0'){
         //if 0 send both players a gamedata miss
-          makePacket(buf,GAME_DATA,0,"");
+          makePacket(buf,GAME_DATA,position,"0");
         }else if(check == 'b'){
         //if b send both players a gamedata hit and ++ opposing player's death
           if(current == player1){
@@ -467,7 +464,7 @@ fflush(stdout);
           }else{
             p1deaths++;
           }
-          makePacket(buf, GAME_DATA,1,"");
+          makePacket(buf, GAME_DATA,position,"1");
         }else{
         //else send errors to players
           makePacket(buf, ERROR,0,"error: reading board");
