@@ -9,7 +9,7 @@ int   convertPortToInt(int);
 int   setupGame(int);
 int   ParseInputSetup(int,char* input);
 int   ParseInputHit(char* input);
-int   ParseHitPacket(buffer);
+int   ParseHitPacket(char*,int);
 int   ParseTurnPacket (char *packet);
 char* getUserInput();
 void  displayBoard();
@@ -789,15 +789,133 @@ int whoseTurn (int sockfd) {
     {
       printf("And the server says: %s",buffer);
       //Parse the input from the server
-      hitted = ParseHitPacket(buffer);
+      hitted = ParseHitPacket(buffer,0);
     }
   }
  
 }
 
-int ParseHitPacket(buffer)
+//type 0 is the shipArray Waiting to be hit
+//turn = 0 Not my turn
+int UpdateArray(int location, int hitMiss, int type)
 {
+  int c;
+
+  if (type == 0)
+  {
+    //Simple approach shipArray[location] = 'X';
+    if (shipArray[location] == '0')
+    {
+      shipArray[location] = 'X';
+    }
+    else 
+    {
+      c = shipArray[location];
+      shipArray[location] = tolower((char)c);
+    }
+  }
+  else if(type == 1)
+  {
+    if(hitMiss == 1)
+    {
+      hitsArray[location] = '!';
+    } 
+    else 
+    {
+      hitsArray[location] = 'X';
+    }
+  }
+  else
+  {
+    
+    
+  }
+  return (-1);
+}
+
+//Where type will specify which array to update
+//type 0 is the shipArray Waiting to be hit
+//turn = 0 Not my turn
+int ParseHitPacket(char *input, int type)
+{
+  int index = 0, i = 0, c, OpCode = -1, location = -1, hitMiss = -1;
+
+  while(true)
+  {
+    c = input[i];
+
+    if (isspace(c) || c == ';')
+    {
+      i++;
+      continue;
+    }
+    if (c == EOF || c == '\n' || c == '\0') // at end, add terminating zero
+    {
+      #ifdef debug
+      printf("what is c before break %c %d i = %d\n",c, (int)c, i);
+      printf("What are these as ints EOF %d \\n %d \\0%d\n",(int)EOF,\
+(int)('\n'), (int)('\0'));
+      #endif
+
+      break;
+    }
+    //sets opCode
+    if (index == 0)
+    {
+      OpCode = (char)c - '0';
+      #ifdef debug
+      printf("what is c %c index = %d ship = %d\n",c,index, ship);
+      #endif
+
+    }
+    //sets location horizontally
+    if (index == 1)
+    {
+      #ifdef debug
+      printf("before c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+      location = (char)c - '0';
+
+      #ifdef debug
+      printf("after upper c %c index = %d loc = %d\n",c,index,location);
+      #endif
+      i++;
+
+    }
+    //sets location vertically and adds them
+    if (index == 2)
+    {
+      location += 10*((int)((char)c-'0'));
+
+      #ifdef debug
+      printf("final loc c %c index = %d loc = %d\n",c,index,location);
+      #endif
+
+    }
+    //sets orientation
+    if (index == 3)
+    {
+      hitMiss = (char)c -'0';
+
+      #ifdef debug
+      printf("what is c %c index = %d ori = %c\n",c,index,hitMiss);
+      #endif
+    }
+    index++;
+
+  }
   
+  //Error Checking
+  if (OpCode > 6 || OpCode < 0 || hitMiss < 0 || hitMiss > 1 || location < 0 ||\
+location > 100) 
+  {
+    return(-1);
+  }
+
+  UpdateArray(location, hitMiss, type);
+
+  return(1);
   
 }
 
