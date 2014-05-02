@@ -385,6 +385,8 @@ printf("you didn't hit or miss wat/n");
         fflush(stdout);
         return;
       }
+      printf("gamedata buf at make is %s\n",buf);
+fflush(stdout);
       sprintf(buf, "%d%02d;%c\n", opCode,position,data[0]);
       break;
     case ACK:
@@ -454,7 +456,8 @@ fflush(stdout);
         }else{
           check = player1Board[position];
         }
-
+printf("the position has %c\n",check);
+fflush(stdout);
         if(check == '0'){
         //if 0 send both players a gamedata miss
           makePacket(buf,GAME_DATA,position,"0");
